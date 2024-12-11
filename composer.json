@@ -1,17 +1,18 @@
 {
-    "name": ":vendor_slug/:package_slug",
-    "description": ":package_description",
+    "name": "honed/nav",
+    "description": "Create backend driven navigation routes with server-side authorization in Laravel.",
     "keywords": [
-        ":vendor_name",
+        "Honed",
         "laravel",
-        ":package_slug"
+        "nav",
+        "inertia"
     ],
-    "homepage": "https://github.com/:vendor_slug/:package_slug",
+    "homepage": "https://github.com/honedlabs/nav",
     "license": "MIT",
     "authors": [
         {
-            "name": ":author_name",
-            "email": "author@domain.com",
+            "name": "Joshua Wallace",
+            "email": "josh@joshua-wallace.com",
             "role": "Developer"
         }
     ],
@@ -31,26 +32,24 @@
         "phpstan/extension-installer": "^1.4.3",
         "phpstan/phpstan-deprecation-rules": "^2.0.1",
         "phpstan/phpstan-phpunit": "^2.0.3",
-        "inertiajs/inertia-laravel": "^1.2||^2.0",
+        "inertiajs/inertia-laravel": "^1.2||2.x-dev||^2.0",
         "worksome/request-factories": "^3.3",
-        "pestphp/pest-plugin-laravel": "^3.0",
-        "spatie/laravel-ray": "^1.35"
+        "pestphp/pest-plugin-laravel": "^3.0"
     },
     "autoload": {
         "psr-4": {
-            "VendorName\\Skeleton\\": "src/",
-            "VendorName\\Skeleton\\Database\\Factories\\": "database/factories/"
+            "Honed\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "VendorName\\Skeleton\\Tests\\": "tests/",
+            "Honed\\Tests\\": "tests/",
             "Workbench\\App\\": "workbench/app/"
         }
     },
     "scripts": {
         "post-autoload-dump": "@composer run prepare",
-        "clear": "@php vendor/bin/testbench package:purge-skeleton --ansi",
+        "clear": "@php vendor/bin/testbench package:purge-nav --ansi",
         "prepare": "@php vendor/bin/testbench package:discover --ansi",
         "build": [
             "@composer run prepare",
@@ -81,10 +80,10 @@
     "extra": {
         "laravel": {
             "providers": [
-                "VendorName\\Skeleton\\SkeletonServiceProvider"
+                "Honed\\NavServiceProvider"
             ],
             "aliases": {
-                "Skeleton": "VendorName\\Skeleton\\Facades\\Skeleton"
+                "Nav": "Honed\\Facades\\Nav"
             }
         }
     },
