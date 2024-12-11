@@ -7,63 +7,80 @@ use Honed\Core\Primitive;
 class Nav
 {
     /** 
+     * The navigation items, ordered
      * @var array<string, array<\Honed\Nav\NavItem>>
      */
     protected $items = [];
 
     /**
-     * @var string|true
+     * The groups to select from the items array when retrieving nav items
+     * 
+     * @var string|true|array<int,string>
      */
     protected $group = 'default';
 
-    public function __construct($group, $items)
+    public function __construct($group, ...$items)
     {
-        $this->setItems($items);
-    }
-
-    private function setItems()
-    {
-
+        $this->setItems($group, ...$items);
     }
 
     /**
+     * @param array<int,string>|string|array<int,array<int,string>>|array<int,\Honed\Nav\NavItem>|\Honed\Nav\NavItem $group
      * @param array<int,\Honed\Nav\NavItem>|\Honed\Nav\NavItem $item
+     * @return $this
      */
-    public function item($group, ...$item)
+    public function item($group, ...$item): static
     {
-        $this->items[] = $item;
+        $this->setItems($group, ...$item);
+        return $this;
     }    
 
 
     /**
+     *
      * @param string|array<int,\Honed\Nav\NavItem>|\Honed\Nav\NavItem $group
-     */
-    public function items($group, ...$items)
-    {
-        $this->item($group, ...$items);
-    }
-
-    /**
-     * Set the current group to use
+     * @param array<int,\Honed\Nav\NavItem>|\Honed\Nav\NavItem ...$items
      * 
-     * @param string $group
+     * @return $this
      */
-    public function use(string $group)
+    public function items($group, ...$items): static
     {
-        $this->group = $group;
+        $this->setItems($group, ...$items);
+        return $this;
     }
 
     /**
+     * Set the group to use for retrieving navigations items.
+     * 
+     * @param string|array<int,string>|true ...$group
+     * 
+     * @return $this
+     */
+    public function use(...$group): static
+    {
+        $this->group = count($group) === 1 ? $group[0] : $group;
+        return $this;
+    }
+
+    /**
+     * Add a set of items to a given group, with the group name being enforced.
+     * 
      * @param string $group
      * @param array<int,\Honed\Nav\NavItem>|\Honed\Nav\NavItem $items
      */
-    public function group(string|true $group, ...$items)
+    public function group(string $group, ...$items): static
     {
-
+        $this->setItems($group, ...$items);
+        return $this;
     }
 
-
-    public function get(string|true $group = 'default')
+    /**
+     * Retrieve the items associated with the provided group(s)
+     * 
+     * @param string|true|array<int,string> $group
+     * @return ($group is string ? array<int,\Honed\Nav\NavItem> : array<string,array<int,\Honed\Nav\NavItem>>)|null
+     */
+    public function get(string|true|array $group = 'default')
     {
         // items could be empty
 
@@ -76,8 +93,41 @@ class Nav
     {
         
     }
-    
 
+    /**
+     * Sort the items in a group.
+     * 
+     * @param string|true|array<int,string> $group
+     * @param bool $asc
+     * 
+     * @return void
+     */
+    public function sort(string|true|array $group, bool $asc = true): void
+    {
 
+    }
 
+        /**
+     * Set the items array.
+     * 
+     */
+    private function setItems($group, ...$items): void
+    {
+        //
+    }
+
+    /**
+     * Set the retrieval group.
+     * 
+     * @param string|array<int,string>|true $group
+     */
+    private function setGroup(string|array|true $group): void
+    {
+        //
+    }
+
+    private function fromUrl(string $url)
+    {
+        //
+    }
 }
