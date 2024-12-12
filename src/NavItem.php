@@ -4,12 +4,19 @@ namespace Honed\Nav;
 
 use Honed\Core\Primitive;
 use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Route;
 
 class NavItem extends Primitive
 {
     use \Honed\Core\Concerns\Authorizable;
     use \Honed\Core\Concerns\HasName;
-    use Concerns\HasLink;
+
+    /**
+     * The resolved url
+     * 
+     * @var string
+     */
+    protected $link;
 
     /**
      * The closure to evaluate to determine if the item is active
@@ -43,6 +50,20 @@ class NavItem extends Primitive
     public static function make(string $name, string $link, mixed $parameters = [], bool $absolute = true): static
     {
         return resolve(static::class, compact('name', 'link', 'parameters', 'absolute'));
+    }
+
+        /**
+     * Get the nav item as an array
+     * 
+     * @return array{name:string,href:string,isActive:bool}
+     */
+    public function toArray()
+    {
+        return [
+            'name' => $this->getName(),
+            'url' => $this->getLink(),
+            'isActive' => $this->isActive(),
+        ];
     }
 
     /**
@@ -82,24 +103,139 @@ class NavItem extends Primitive
             !isset($this->active) => request()->url() === url($this->getLink()),
             \is_string($this->active) => Request::is($this->active),
             default => $this->evaluate($this->active, [
-
+                'request' => request(),
+                'route' => Route::currentRouteName(),
+                'name' => Route::currentRouteName(),
+                'url' => request()->url(),
+                'path' => request()->uri()->path(),
             ], [
-
+                Request::class => request(),
+                'string' => request()->uri()->path(),
             ]),
         };
     }
 
-    /**
-     * Get the nav item as an array
+        /**
+     * Set the route name and parameters to resolve the url
      * 
-     * @return array{name:string,href:string,isActive:bool}
+     * @param string $name
+     * @param mixed $parameters
+     * @param bool $absolute
+     * 
+     * @return void
      */
-    public function toArray()
+    public function setRoute(string $name, mixed $parameters = [], bool $absolute = true): void
     {
-        return [
-            'name' => $this->getName(),
-            'url' => $this->getLink(),
-            'isActive' => $this->isActive(),
-        ];
+        $this->link = route($name, $parameters, $absolute);
+    }
+
+    /**
+     * Set the route name and parameters, chainable
+     * 
+     * @param string $name
+     * @param mixed $parameters
+     * @param bool $absolute
+     * 
+     * @return $this
+     */
+    public function route(string $name, mixed $parameters = [], bool $absolute = true): static
+    {
+        $this->setRoute($name, $parameters, $absolute);
+        return $this;
+    }
+
+    /**
+     * Set the url quietly.
+     * 
+     * @param string $url
+     * 
+     * @return void
+     */
+    public function setUrl(string $url): void
+    {
+        $this->link = $url;
+    }
+
+    /**
+     * Set the url, chainable
+     * 
+     * @param string $url
+     * 
+     * @return $this
+     */
+    public function url(string $url): static
+    {
+        $this->setUrl($url);
+        return $this;
+    }
+
+    /**
+     * Set the link quietly
+     * 
+     * @param string $link
+     * @param mixed $parameters
+     * @param bool $absolute
+     * 
+     * @return void
+     */
+    public function setLink(string $link, mixed $parameters = [], bool $absolute = true): void
+    {
+        match (true) {
+            str($link)->startsWith(['http', 'https', '/']) => $this->setUrl($link),
+            default => $this->setRoute($link, $parameters, $absolute),
+        };
+    }
+
+    /**
+     * Set the link, chainable
+     * 
+     * @param string $link
+     * @param mixed $parameters
+     * @param bool $absolute
+     * 
+     * @return $this
+     */
+    public function link(string $link, mixed $parameters = [], bool $absolute = true): static
+    {
+        match (true) {
+            str($link)->startsWith(['http', 'https', '/']) => $this->setUrl($link),
+            default => $this->setRoute($link, $parameters, $absolute),
+        };
+
+        return $this;
+    }
+
+    /**
+     * Determine if the link is set
+     * 
+     * @return bool
+     */
+    public function hasLink(): bool
+    {
+        return isset($this->link);
+    }
+
+    /**
+     * Determine if the link is not set
+     * 
+     * @return bool
+     */
+    public function missingLink(): bool
+    {
+        return ! $this->hasLink();
+    }
+
+    /**
+     * Get the link
+     * 
+     * @return string|null
+     */
+    public function getLink(): ?string
+    {
+        if ($this->missingLink()) {
+            return null;
+        }
+
+        return $this->link;
     }
 }
