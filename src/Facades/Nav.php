@@ -11,6 +11,6 @@ class Nav extends Facade
 {
     protected static function getFacadeAccessor(): string
     {
-        return \Honed\Nav\Nav::class;
+        return \Honed\Nav\NavGroup::class;
     }
 }

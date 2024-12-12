@@ -4,10 +4,10 @@ namespace Honed\Nav;
 
 use Honed\Core\Primitive;
 
-class Nav
+class NavGroup
 {
     /** 
-     * The navigation items, ordered
+     * The navigation group items
      * @var array<string, array<\Honed\Nav\NavItem>>
      */
     protected $items = [];
@@ -23,18 +23,6 @@ class Nav
     {
         $this->setItems($group, ...$items);
     }
-
-    /**
-     * @param array<int,string>|string|array<int,array<int,string>>|array<int,\Honed\Nav\NavItem>|\Honed\Nav\NavItem $group
-     * @param array<int,\Honed\Nav\NavItem>|\Honed\Nav\NavItem $item
-     * @return $this
-     */
-    public function item($group, ...$item): static
-    {
-        $this->setItems($group, ...$item);
-        return $this;
-    }    
-
 
     /**
      *
@@ -82,16 +70,32 @@ class Nav
      */
     public function get(string|true|array $group = 'default')
     {
-        // items could be empty
+        if ($group === true) {
+            return $this->items;
+        }
 
+        if (is_array($group)) {
+            $result = [];
+            foreach ($group as $g) {
+                if (isset($this->items[$g])) {
+                    $result[$g] = $this->items[$g];
+                }
+            }
+            return $result;
+        }
+
+        return $this->items[$group] ?? null;
     }
 
     /**
      * Alias for `get`
+     * 
+     * @param string $group
+     * @return array<int,\Honed\Nav\NavItem>|null
      */
     public function for(string $group = 'default')
     {
-        
+        return $this->get($group);
     }
 
     /**
@@ -104,16 +108,52 @@ class Nav
      */
     public function sort(string|true|array $group, bool $asc = true): void
     {
+        $groups = $group === true ? array_keys($this->items) : (is_array($group) ? $group : [$group]);
 
+        foreach ($groups as $g) {
+            if (!isset($this->items[$g])) continue;
+
+            usort($this->items[$g], function (NavItem $a, NavItem $b) use ($asc) {
+                return $asc 
+                    ? $a->getOrder() <=> $b->getOrder()
+                    : $b->getOrder() <=> $a->getOrder();
+            });
+        }
     }
 
-        /**
+    /**
      * Set the items array.
      * 
+     * @param string|array<int,\Honed\Nav\NavItem>|\Honed\Nav\NavItem $group
+     * @param array<int,\Honed\Nav\NavItem>|\Honed\Nav\NavItem ...$items
      */
     private function setItems($group, ...$items): void
     {
-        //
+        // If first argument is not a string, it's an item
+        if (!is_string($group)) {
+            $items = array_merge([$group], $items);
+            $group = 'default';
+        }
+
+        // Ensure items is always an array
+        $navItems = [];
+        foreach ($items as $item) {
+            if ($item instanceof NavItem) {
+                $navItems[] = $item;
+            } elseif (is_array($item)) {
+                foreach ($item as $subItem) {
+                    if ($subItem instanceof NavItem) {
+                        $navItems[] = $subItem;
+                    }
+                }
+            }
+        }
+
+        if (!isset($this->items[$group])) {
+            $this->items[$group] = [];
+        }
+
+        $this->items[$group] = array_merge($this->items[$group], $navItems);
     }
 
     /**
@@ -123,11 +163,6 @@ class Nav
      */
     private function setGroup(string|array|true $group): void
     {
-        //
-    }
-
-    private function fromUrl(string $url)
-    {
-        //
+        $this->group = $group;
     }
 }

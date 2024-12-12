@@ -26,6 +26,7 @@ class TestCase extends Orchestra
         $router->get('/', fn () => 'Hello World')->name('home.index');
         $router->get('/about', fn () => 'About')->name('about.show');
         $router->get('/contact', fn () => 'Contact')->name('contact.index');
+        $router->get('/login', fn () => 'Login');
     }
 
     public function getEnvironmentSetUp($app)

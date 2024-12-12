@@ -38,12 +38,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Honed\\": "src/"
+            "Honed\\Nav\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Honed\\Tests\\": "tests/",
+            "Honed\\Nav\\Tests\\": "tests/",
             "Workbench\\App\\": "workbench/app/"
         }
     },
@@ -80,10 +80,10 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Honed\\NavServiceProvider"
+                "Honed\\Nav\\NavServiceProvider"
             ],
             "aliases": {
-                "Nav": "Honed\\Facades\\Nav"
+                "Nav": "Honed\\Nav\\Facades\\Nav"
             }
         }
     },
