@@ -3,11 +3,13 @@
 namespace Honed\Nav;
 
 use Honed\Core\Primitive;
+use Illuminate\Support\Collection;
 
 class NavGroup
 {
     /** 
      * The navigation group items
+     * 
      * @var array<string, array<\Honed\Nav\NavItem>>
      */
     protected $items = [];
@@ -19,34 +21,66 @@ class NavGroup
      */
     protected $group = 'default';
 
-    public function __construct($group, ...$items)
+    /**
+     * Create a new NavGroup instance
+     * 
+     * @param string|true|array<int,string>|null $group
+     * @param array<int,\Honed\Nav\NavItem>|\Honed\Nav\NavItem ...$items
+     */
+    public function __construct($group = null, ...$items)
     {
-        $this->setItems($group, ...$items);
+        if ($group) {
+            $this->items($group, ...$items);
+        }
     }
 
     /**
-     *
-     * @param string|array<int,\Honed\Nav\NavItem>|\Honed\Nav\NavItem $group
+     * Add a set of items to the default or specified group.
+     * 
+     * @param string|array<int,\Honed\Nav\NavItem>|\Honed\Nav\NavItem|array<int,array<int,\Honed\Nav\NavItem>>|array<int,mixed>|array<string,mixed> $group
      * @param array<int,\Honed\Nav\NavItem>|\Honed\Nav\NavItem ...$items
      * 
      * @return $this
      */
     public function items($group, ...$items): static
     {
-        $this->setItems($group, ...$items);
+        /**
+         * @var array{string,array<int,mixed>}
+         */
+        [$group, $items] = \is_string($group) ? 
+            [$group, $items] : 
+            ['default', [$group, ...$items]];
+
+        $this->items[$group] ??= [];
+
+        foreach ($items as $item) {
+            match (true) {
+                $item instanceof NavItem => $this->items[$group][] = $item,
+                \is_array($item) && isset($item[0]) && $item[0] instanceof NavItem => $this->items[$group][] = $item[0],
+                \is_array($item) && \array_is_list($item) => $this->items[$group][] = NavItem::make(...$item),
+                \is_array($item) => $this->items[$group][] = NavItem::make(...\array_values($item)),
+                default => null
+            };
+        }
+
         return $this;
     }
 
     /**
      * Set the group to use for retrieving navigations items.
      * 
-     * @param string|array<int,string>|true ...$group
+     * @param array<int,string>|array<int,true>|array<int,array<int,string>> ...$group
      * 
      * @return $this
      */
     public function use(...$group): static
     {
-        $this->group = count($group) === 1 ? $group[0] : $group;
+        $this->group = collect($group)
+            ->flatten()
+            ->when(count($group) === 1, 
+                fn(Collection $collection) => $collection->first(),
+                fn(Collection $collection) => $collection->toArray()
+            );
         return $this;
     }
 
@@ -58,111 +92,47 @@ class NavGroup
      */
     public function group(string $group, ...$items): static
     {
-        $this->setItems($group, ...$items);
-        return $this;
+        return $this->items($group, ...$items);
     }
 
     /**
      * Retrieve the items associated with the provided group(s)
      * 
-     * @param string|true|array<int,string> $group
-     * @return ($group is string ? array<int,\Honed\Nav\NavItem> : array<string,array<int,\Honed\Nav\NavItem>>)|null
+     * @param array<int,string>|array{int,string}|array<int,array<int,string>> $group
+     * @return ($group is string ? array<int,\Honed\Nav\NavItem> : array<string,array<int,\Honed\Nav\NavItem>>)
      */
-    public function get(string|true|array $group = 'default')
+    public function get(...$group)
     {
-        if ($group === true) {
-            return $this->items;
-        }
+        $groups = collect([sizeof($group) === 0 ? $this->group : $group])
+            ->flatten()
+            ->filter();
 
-        if (is_array($group)) {
-            $result = [];
-            foreach ($group as $g) {
-                if (isset($this->items[$g])) {
-                    $result[$g] = $this->items[$g];
-                }
-            }
-            return $result;
-        }
+        return match (true) {
+            $groups->contains(true) => $this->items,
+            $groups->count() === 1 => $this->items[$groups->first()] ?? [],
+            default => $groups->mapWithKeys(fn ($key) => [$key => $this->items[$key] ?? []])->all()
+        };
+    }
 
-        return $this->items[$group] ?? null;
+    /**
+     * Retrieve the items associated with the provided group(s) as a Collection
+     * 
+     * @param array<int,string>|array{int,string}|array<int,array<int,string>> $group
+     * @return \Illuminate\Support\Collection<int,\Honed\Nav\NavItem>
+     */
+    public function collect(...$group): Collection
+    {
+        return collect($this->get(...$group));
     }
 
     /**
      * Alias for `get`
      * 
-     * @param string $group
+     * @param array<int,string>|array{int,string}|array<int,array<int,string>> $group
      * @return array<int,\Honed\Nav\NavItem>|null
      */
-    public function for(string $group = 'default')
+    public function for(...$group)
     {
-        return $this->get($group);
-    }
-
-    /**
-     * Sort the items in a group.
-     * 
-     * @param string|true|array<int,string> $group
-     * @param bool $asc
-     * 
-     * @return void
-     */
-    public function sort(string|true|array $group, bool $asc = true): void
-    {
-        $groups = $group === true ? array_keys($this->items) : (is_array($group) ? $group : [$group]);
-
-        foreach ($groups as $g) {
-            if (!isset($this->items[$g])) continue;
-
-            usort($this->items[$g], function (NavItem $a, NavItem $b) use ($asc) {
-                return $asc 
-                    ? $a->getOrder() <=> $b->getOrder()
-                    : $b->getOrder() <=> $a->getOrder();
-            });
-        }
-    }
-
-    /**
-     * Set the items array.
-     * 
-     * @param string|array<int,\Honed\Nav\NavItem>|\Honed\Nav\NavItem $group
-     * @param array<int,\Honed\Nav\NavItem>|\Honed\Nav\NavItem ...$items
-     */
-    private function setItems($group, ...$items): void
-    {
-        // If first argument is not a string, it's an item
-        if (!is_string($group)) {
-            $items = array_merge([$group], $items);
-            $group = 'default';
-        }
-
-        // Ensure items is always an array
-        $navItems = [];
-        foreach ($items as $item) {
-            if ($item instanceof NavItem) {
-                $navItems[] = $item;
-            } elseif (is_array($item)) {
-                foreach ($item as $subItem) {
-                    if ($subItem instanceof NavItem) {
-                        $navItems[] = $subItem;
-                    }
-                }
-            }
-        }
-
-        if (!isset($this->items[$group])) {
-            $this->items[$group] = [];
-        }
-
-        $this->items[$group] = array_merge($this->items[$group], $navItems);
-    }
-
-    /**
-     * Set the retrieval group.
-     * 
-     * @param string|array<int,string>|true $group
-     */
-    private function setGroup(string|array|true $group): void
-    {
-        $this->group = $group;
+        return $this->get(...$group);
     }
 }

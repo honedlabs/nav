@@ -3,8 +3,9 @@
 namespace Honed\Nav;
 
 use Honed\Core\Primitive;
-use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Request;
 
 class NavItem extends Primitive
 {
@@ -67,28 +68,28 @@ class NavItem extends Primitive
     }
 
     /**
-     * Set the active closure, chainable.
+     * Set the active condition, chainable.
      * 
-     * @param \Closure|string $closure
+     * @param \Closure|string $condition
      * 
      * @return $this
      */
-    public function active(\Closure|string $closure): static
+    public function active(\Closure|string $condition): static
     {
-        $this->setActive($closure);
+        $this->setActive($condition);
         return $this;
     }
 
     /**
-     * Set the active closure, quietly.
+     * Set the active condition, quietly.
      * 
-     * @param \Closure|string $closure
+     * @param \Closure|string $condition
      * 
      * @return void
      */
-    public function setActive(\Closure|string $closure): void
+    public function setActive(\Closure|string $condition): void
     {
-        $this->active = $closure;
+        $this->active = $condition;
     }
 
     /**
@@ -100,17 +101,18 @@ class NavItem extends Primitive
     {
         return match (true) {
             $this->getLink() === '#' => true,
-            !isset($this->active) => request()->url() === url($this->getLink()),
+            !isset($this->active) => Request::url() === URL::to($this->getLink()),
             \is_string($this->active) => Request::is($this->active),
             default => $this->evaluate($this->active, [
-                'request' => request(),
+                'request' => Request::capture(),
                 'route' => Route::currentRouteName(),
                 'name' => Route::currentRouteName(),
-                'url' => request()->url(),
-                'path' => request()->uri()->path(),
+                'url' => Request::url(),
+                'path' => Request::path(),
+                'uri' => Request::path(),
             ], [
-                Request::class => request(),
-                'string' => request()->uri()->path(),
+                Request::class => Request::capture(),
+                'string' => Request::path(),
             ]),
         };
     }
