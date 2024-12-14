@@ -43,13 +43,14 @@ class NavGroup
      */
     public function items($group, ...$items): static
     {
-        /** 
-         * @var array{string,array<int,mixed>} $result
-         */
         $result = \is_string($group) ? 
             [$group, $items] : 
             ['default', [$group, ...$items]];
-            
+        
+        /** 
+         * @var string $group
+         * @var array<int,\Honed\Nav\NavItem>|array<int,array<int,\Honed\Nav\NavItem>>|array<int,mixed>|array<string,mixed> $items
+         */
         [$group, $items] = $result;
 
         $this->items[$group] ??= [];
@@ -59,7 +60,7 @@ class NavGroup
                 $item instanceof NavItem => $this->items[$group][] = $item,
                 \is_array($item) && isset($item[0]) && $item[0] instanceof NavItem => $this->items[$group][] = $item[0],
                 \is_array($item) && \array_is_list($item) => $this->items[$group][] = NavItem::make(...$item),
-                \is_array($item) => $this->items[$group][] = NavItem::make(...\array_values($item)),
+                \is_array($item) => $this->items[$group][] = NavItem::make(...\array_values($item)), // @phpstan-ignore-line
                 default => null
             };
         }
@@ -76,7 +77,7 @@ class NavGroup
      */
     public function use(...$group): static
     {
-        $this->group = collect($group)
+        $this->group = collect($group) // @phpstan-ignore-line
             ->flatten()
             ->when(count($group) === 1, 
                 fn(Collection $collection) => $collection->first(),
@@ -99,8 +100,8 @@ class NavGroup
     /**
      * Retrieve the items associated with the provided group(s)
      * 
-     * @param array<int,string>|array{int,string}|array<int,array<int,string>> $group
-     * @return ($group is string ? array<int,\Honed\Nav\NavItem> : array<string,array<int,\Honed\Nav\NavItem>>)
+     * @param array<int,string>|array{int,true}|array<int,array<int,string>> ...$group
+     * @return array<int,\Honed\Nav\NavItem>|array<string,array<int,\Honed\Nav\NavItem>>
      */
     public function get(...$group)
     {
@@ -118,8 +119,8 @@ class NavGroup
     /**
      * Retrieve the items associated with the provided group(s) as a Collection
      * 
-     * @param array<int,string>|array{int,string}|array<int,array<int,string>> $group
-     * @return \Illuminate\Support\Collection<int,\Honed\Nav\NavItem>
+     * @param string|true|array<int,string> ...$group
+     * @return \Illuminate\Support\Collection<int|string,\Honed\Nav\NavItem|array<int,\Honed\Nav\NavItem>>
      */
     public function collect(...$group): Collection
     {
@@ -129,8 +130,8 @@ class NavGroup
     /**
      * Alias for `get`
      * 
-     * @param array<int,string>|array{int,string}|array<int,array<int,string>> $group
-     * @return array<int,\Honed\Nav\NavItem>|null
+     * @param string|true|array<int,string> ...$group
+     * @return array<int,\Honed\Nav\NavItem>|array<string,array<int,\Honed\Nav\NavItem>>
      */
     public function for(...$group)
     {
