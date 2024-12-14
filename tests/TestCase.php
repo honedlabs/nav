@@ -2,9 +2,11 @@
 
 namespace Honed\Nav\Tests;
 
+use Inertia\Inertia;
 use Illuminate\Support\Facades\View;
 use Orchestra\Testbench\TestCase as Orchestra;
-use Honed\Nav\NavServiceProvider;
+use Inertia\ServiceProvider as InertiaServiceProvider;
+
 
 class TestCase extends Orchestra
 {
@@ -12,12 +14,16 @@ class TestCase extends Orchestra
     {
         parent::setUp();
         View::addLocation(__DIR__.'/Stubs');
+        Inertia::setRootView('app');
+        config()->set('inertia.testing.ensure_pages_exist', false);
+        config()->set('inertia.testing.page_paths', [realpath(__DIR__)]);
+
     }
 
     protected function getPackageProviders($app)
     {
         return [
-            NavServiceProvider::class,
+            InertiaServiceProvider::class,
         ];
     }
 

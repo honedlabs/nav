@@ -39,7 +39,10 @@
     "autoload": {
         "psr-4": {
             "Honed\\Nav\\": "src/"
-        }
+        },
+        "files": [
+            "./helpers.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
@@ -79,9 +82,6 @@
     },
     "extra": {
         "laravel": {
-            "providers": [
-                "Honed\\Nav\\NavServiceProvider"
-            ],
             "aliases": {
                 "Nav": "Honed\\Nav\\Facades\\Nav"
             }

@@ -108,9 +108,8 @@ class NavGroup
         $groups = collect([sizeof($group) === 0 ? $this->group : $group])
             ->flatten()
             ->filter();
-
+            
         return match (true) {
-            $groups->contains(true) => $this->items,
             $groups->count() === 1 => $this->items[$groups->first()] ?? [],
             default => $groups->mapWithKeys(fn ($key) => [$key => $this->items[$key] ?? []])->all()
         };
