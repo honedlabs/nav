@@ -2,7 +2,6 @@
 
 namespace Honed\Nav;
 
-use Honed\Core\Primitive;
 use Illuminate\Support\Collection;
 
 class NavGroup
@@ -24,8 +23,8 @@ class NavGroup
     /**
      * Create a new NavGroup instance
      * 
-     * @param string|true|array<int,string>|null $group
-     * @param array<int,\Honed\Nav\NavItem>|\Honed\Nav\NavItem ...$items
+     * @param string|array<int,\Honed\Nav\NavItem>|\Honed\Nav\NavItem|array<int,array<int,\Honed\Nav\NavItem>>|array<int,mixed>|array<string,mixed>|null $group
+     * @param array<int,\Honed\Nav\NavItem>|array<int,array<int,\Honed\Nav\NavItem>>|array<int,mixed>|array<string,mixed> ...$items
      */
     public function __construct($group = null, ...$items)
     {
@@ -38,18 +37,20 @@ class NavGroup
      * Add a set of items to the default or specified group.
      * 
      * @param string|array<int,\Honed\Nav\NavItem>|\Honed\Nav\NavItem|array<int,array<int,\Honed\Nav\NavItem>>|array<int,mixed>|array<string,mixed> $group
-     * @param array<int,\Honed\Nav\NavItem>|\Honed\Nav\NavItem ...$items
+     * @param array<int,\Honed\Nav\NavItem>|array<int,array<int,\Honed\Nav\NavItem>>|array<int,mixed>|array<string,mixed> ...$items
      * 
      * @return $this
      */
     public function items($group, ...$items): static
     {
-        /**
-         * @var array{string,array<int,mixed>}
+        /** 
+         * @var array{string,array<int,mixed>} $result
          */
-        [$group, $items] = \is_string($group) ? 
+        $result = \is_string($group) ? 
             [$group, $items] : 
             ['default', [$group, ...$items]];
+            
+        [$group, $items] = $result;
 
         $this->items[$group] ??= [];
 

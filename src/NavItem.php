@@ -15,14 +15,14 @@ class NavItem extends Primitive
     /**
      * The resolved url
      * 
-     * @var string
+     * @var string|null
      */
     protected $link;
 
     /**
      * The closure to evaluate to determine if the item is active
      * 
-     * @var \Closure|string
+     * @var \Closure|string|null
      */
     protected $active;
 
@@ -56,7 +56,7 @@ class NavItem extends Primitive
         /**
      * Get the nav item as an array
      * 
-     * @return array{name:string,href:string,isActive:bool}
+     * @return array{name:string|null,url:string|null,isActive:bool}
      */
     public function toArray()
     {
@@ -99,9 +99,13 @@ class NavItem extends Primitive
      */
     public function isActive(): bool
     {
-        return match (true) {
+        if ($this->missingLink()) {
+            return false;
+        }
+
+        return (bool) match (true) {
             $this->getLink() === '#' => true,
-            !isset($this->active) => Request::url() === URL::to($this->getLink()),
+            !isset($this->active) => Request::url() === URL::to($this->getLink()), // @phpstan-ignore-line
             \is_string($this->active) => Request::is($this->active),
             default => $this->evaluate($this->active, [
                 'request' => Request::capture(),

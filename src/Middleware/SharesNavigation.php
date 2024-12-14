@@ -9,6 +9,13 @@ use Inertia\Inertia;
 
 class SharesNavigation
 {
+    /**
+     * Handle the incoming request.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param \Closure $next
+     * @return \Closure
+     */
     public function handle(Request $request, Closure $next)
     {
         Inertia::share([
