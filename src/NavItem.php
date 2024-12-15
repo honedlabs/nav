@@ -17,15 +17,17 @@ class NavItem extends Primitive
      *
      * @param  string  $name  The name of the nav item
      * @param  string  $link  The link to the nav item
+     * @param  (\Closure(mixed...):bool)|string|null  $active  The condition to determine if the item is active
+     * @param  string|null  $icon  The icon to display for the nav item
      * @param  mixed  $parameters  The parameters to pass to the link
      * @param  bool  $absolute  Whether the link should be absolute
-     * @param  (\Closure(mixed...):bool)|string|null  $active  The condition to determine if the item is active
      */
-    public function __construct(string $name, protected string $link, mixed $parameters = [], bool $absolute = true, protected \Closure|string|null $active = null)
+    public function __construct(string $name, protected string $link, protected \Closure|string|null $active = null, protected ?string $icon = null, mixed $parameters = [], bool $absolute = true)
     {
         $this->setName($name);
         $this->setLink($link, $parameters, $absolute);
         $this->setActive($active);
+        $this->setIcon($icon);
     }
 
     /**
@@ -33,26 +35,28 @@ class NavItem extends Primitive
      *
      * @param  string  $name  The name of the nav item
      * @param  string  $link  The link to the nav item
+     * @param  (\Closure(mixed...):bool)|string|null  $active  The condition to determine if the item is active
+     * @param  string|null  $icon  The icon to display for the nav item
      * @param  mixed  $parameters  The parameters to pass to the link
      * @param  bool  $absolute  Whether the link should be absolute
-     * @param  (\Closure(mixed...):bool)|string|null  $active  The condition to determine if the item is active
      */
-    public static function make(string $name, string $link, mixed $parameters = [], bool $absolute = true, \Closure|string|null $active = null): static
+    public static function make(string $name, string $link, \Closure|string|null $active = null, ?string $icon = null, mixed $parameters = [], bool $absolute = true): static
     {
-        return resolve(static::class, compact('name', 'link', 'parameters', 'absolute', 'active'));
+        return resolve(static::class, compact('name', 'link', 'active', 'icon', 'parameters', 'absolute'));
     }
 
     /**
      * Get the nav item as an array
      *
-     * @return array{name:string|null,url:string|null,isActive:bool}
+     * @return non-empty-array<'icon'|'isActive'|'name'|'url',bool|string|null>
      */
-    public function toArray()
+    public function toArray(): array
     {
         return [
             'name' => $this->getName(),
             'url' => $this->getLink(),
             'isActive' => $this->isActive(),
+            ...($this->hasIcon() ? ['icon' => $this->getIcon()] : []),
         ];
     }
 
@@ -199,10 +203,58 @@ class NavItem extends Primitive
     }
 
     /**
-     * Get the link. The link cannot be null
+     * Get the link. The link cannot be null.
      */
     public function getLink(): string
     {
         return $this->link;
+    }
+
+    /**
+     * Set the icon, chainable.
+     *
+     * @return $this
+     */
+    public function icon(string $icon): static
+    {
+        $this->setIcon($icon);
+
+        return $this;
+    }
+
+    /**
+     * Set the icon, quietly.
+     */
+    public function setIcon(?string $icon): void
+    {
+        if (is_null($icon)) {
+            return;
+        }
+
+        $this->icon = $icon;
+    }
+
+    /**
+     * Determine if the nav item has no icon.
+     */
+    public function missingIcon(): bool
+    {
+        return \is_null($this->icon);
+    }
+
+    /**
+     * Determine if the nav item has an icon.
+     */
+    public function hasIcon(): bool
+    {
+        return ! $this->missingIcon();
+    }
+
+    /**
+     * Get the icon.
+     */
+    public function getIcon(): ?string
+    {
+        return $this->icon;
     }
 }

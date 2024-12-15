@@ -20,11 +20,28 @@ it('can be made', function () {
 });
 
 it('has an array form', function () {
-    expect(NavItem::make('Title', '/about')->toArray())->toBe([
-        'name' => 'Title',
-        'url' => '/about',
-        'isActive' => false,
-    ]);
+    expect(NavItem::make('Title', '/about'))
+        ->toBeInstanceOf(NavItem::class)
+        ->hasIcon()->toBeFalse()
+        ->missingIcon()->toBeTrue()
+        ->toArray()->toBe([
+            'name' => 'Title',
+            'url' => '/about',
+            'isActive' => false,
+        ]);
+});
+
+it('can have an icon', function () {
+    expect(NavItem::make('Title', '/about')->icon('home'))
+        ->toBeInstanceOf(NavItem::class)
+        ->hasIcon()->toBeTrue()
+        ->missingIcon()->toBeFalse()
+        ->toArray()->toBe([
+            'name' => 'Title',
+            'url' => '/about',
+            'isActive' => false,
+            'icon' => 'home',
+        ]);
 });
 
 it('can resolve an active condition for an exact string match string', function () {
@@ -104,5 +121,5 @@ it('can explicitly set it as a route', function () {
 });
 
 it('sets as a named route if it does not match a uri pattern', function () {
-    expect(NavItem::make('Title', 'contact.index', ['id' => 1])->getLink())->toBe(route('contact.index', ['id' => 1]));
+    expect(NavItem::make('Title', 'contact.index', parameters: ['id' => 1])->getLink())->toBe(route('contact.index', ['id' => 1]));
 });
