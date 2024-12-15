@@ -2,11 +2,11 @@
 
 namespace Honed\Nav\Tests;
 
-use Inertia\Inertia;
+use Honed\Nav\Middleware\SharesNavigation;
 use Illuminate\Support\Facades\View;
-use Orchestra\Testbench\TestCase as Orchestra;
+use Inertia\Inertia;
 use Inertia\ServiceProvider as InertiaServiceProvider;
-
+use Orchestra\Testbench\TestCase as Orchestra;
 
 class TestCase extends Orchestra
 {
@@ -29,14 +29,14 @@ class TestCase extends Orchestra
 
     protected function defineRoutes($router)
     {
-        $router->get('/', fn () => 'Hello World')->name('home.index');
-        $router->get('/about', fn () => 'About')->name('about.show');
-        $router->get('/contact', fn () => 'Contact')->name('contact.index');
-        $router->get('/login', fn () => 'Login');
+        $router->middleware([SharesNavigation::class])->group(function ($router) {
+            $router->get('/', fn () => Inertia::render('Home'))->name('home.index');
+            $router->get('/about', fn () => Inertia::render('About'))->name('about.index');
+            $router->get('/about/{id}', fn (string $id) => Inertia::render('About', ['id' => $id]))->name('about.show');
+            $router->get('/contact', fn () => Inertia::render('Contact'))->name('contact.index');
+            $router->get('/login', fn () => Inertia::render('Login'));
+        });
     }
 
-    public function getEnvironmentSetUp($app)
-    {
-
-    }
+    public function getEnvironmentSetUp($app) {}
 }

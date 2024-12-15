@@ -3,9 +3,9 @@
 namespace Honed\Nav;
 
 use Honed\Core\Primitive;
-use Illuminate\Support\Facades\URL;
-use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\URL;
 
 class NavItem extends Primitive
 {
@@ -13,49 +13,38 @@ class NavItem extends Primitive
     use \Honed\Core\Concerns\HasName;
 
     /**
-     * The resolved url
-     * 
-     * @var string|null
-     */
-    protected $link;
-
-    /**
-     * The closure to evaluate to determine if the item is active
-     * 
-     * @var \Closure|string|null
-     */
-    protected $active;
-
-    /**
      * Create a new nav item instance.
-     * 
-     * @param string $name
-     * @param string $link
-     * @param mixed $parameters
-     * @param bool $absolute
+     *
+     * @param  string  $name  The name of the nav item
+     * @param  string  $link  The link to the nav item
+     * @param  mixed  $parameters  The parameters to pass to the link
+     * @param  bool  $absolute  Whether the link should be absolute
+     * @param  (\Closure(mixed...):bool)|string|null  $active  The condition to determine if the item is active
      */
-    public function __construct(string $name, string $link, mixed $parameters = [], bool $absolute = true)
+    public function __construct(string $name, protected string $link, mixed $parameters = [], bool $absolute = true, protected \Closure|string|null $active = null)
     {
         $this->setName($name);
         $this->setLink($link, $parameters, $absolute);
+        $this->setActive($active);
     }
 
     /**
      * Make a new nav item instance.
-     * 
-     * @param string $name
-     * @param string $link
-     * @param mixed $parameters
-     * @param bool $absolute
+     *
+     * @param  string  $name  The name of the nav item
+     * @param  string  $link  The link to the nav item
+     * @param  mixed  $parameters  The parameters to pass to the link
+     * @param  bool  $absolute  Whether the link should be absolute
+     * @param  (\Closure(mixed...):bool)|string|null  $active  The condition to determine if the item is active
      */
-    public static function make(string $name, string $link, mixed $parameters = [], bool $absolute = true): static
+    public static function make(string $name, string $link, mixed $parameters = [], bool $absolute = true, \Closure|string|null $active = null): static
     {
-        return resolve(static::class, compact('name', 'link', 'parameters', 'absolute'));
+        return resolve(static::class, compact('name', 'link', 'parameters', 'absolute', 'active'));
     }
 
-        /**
+    /**
      * Get the nav item as an array
-     * 
+     *
      * @return array{name:string|null,url:string|null,isActive:bool}
      */
     public function toArray()
@@ -69,44 +58,40 @@ class NavItem extends Primitive
 
     /**
      * Set the active condition, chainable.
-     * 
-     * @param \Closure|string $condition
-     * 
+     *
+     * @param  (\Closure(mixed...):bool)|string  $condition  The condition to determine if the item is active
      * @return $this
      */
     public function active(\Closure|string $condition): static
     {
         $this->setActive($condition);
+
         return $this;
     }
 
     /**
      * Set the active condition, quietly.
-     * 
-     * @param \Closure|string $condition
-     * 
-     * @return void
+     *
+     * @param  (\Closure(mixed...):bool)|string|null  $condition  The condition to determine if the item is active
      */
-    public function setActive(\Closure|string $condition): void
+    public function setActive(\Closure|string|null $condition): void
     {
+        if (\is_null($condition)) {
+            return;
+        }
+
         $this->active = $condition;
     }
 
     /**
      * Determine if the current request is using this page
-     * 
-     * @return bool
      */
     public function isActive(): bool
     {
-        if ($this->missingLink()) {
-            return false;
-        }
-
         return (bool) match (true) {
             $this->getLink() === '#' => true,
-            !isset($this->active) => Request::url() === URL::to($this->getLink()), // @phpstan-ignore-line
-            \is_string($this->active) => Request::is($this->active),
+            ! isset($this->active) => Request::url() === URL::to($this->getLink()),
+            \is_string($this->active) => $this->matchesPattern($this->active),
             default => $this->evaluate($this->active, [
                 'request' => Request::capture(),
                 'route' => Route::currentRouteName(),
@@ -121,14 +106,31 @@ class NavItem extends Primitive
         };
     }
 
-        /**
+    /**
+     * Check if the current route/path matches the given pattern
+     */
+    protected function matchesPattern(string $pattern): bool
+    {
+        // First check if pattern looks like a route name (contains dots or asterisks)
+        if (str_contains($pattern, '.') || str_contains($pattern, '*')) {
+            $currentRoute = Route::currentRouteName();
+            // If pattern ends with *, treat it as a wildcard match
+            if (str_ends_with($pattern, '*')) {
+                $basePattern = rtrim($pattern, '*');
+
+                return $currentRoute && str_starts_with($currentRoute, $basePattern);
+            }
+
+            // Exact route name match
+            return $currentRoute === $pattern;
+        }
+
+        // Otherwise treat it as a URI pattern
+        return Request::is($pattern) || Request::url() === URL::to($this->getLink());
+    }
+
+    /**
      * Set the route name and parameters to resolve the url
-     * 
-     * @param string $name
-     * @param mixed $parameters
-     * @param bool $absolute
-     * 
-     * @return void
      */
     public function setRoute(string $name, mixed $parameters = [], bool $absolute = true): void
     {
@@ -137,25 +139,19 @@ class NavItem extends Primitive
 
     /**
      * Set the route name and parameters, chainable
-     * 
-     * @param string $name
-     * @param mixed $parameters
-     * @param bool $absolute
-     * 
+     *
+     *
      * @return $this
      */
     public function route(string $name, mixed $parameters = [], bool $absolute = true): static
     {
         $this->setRoute($name, $parameters, $absolute);
+
         return $this;
     }
 
     /**
      * Set the url quietly.
-     * 
-     * @param string $url
-     * 
-     * @return void
      */
     public function setUrl(string $url): void
     {
@@ -164,41 +160,32 @@ class NavItem extends Primitive
 
     /**
      * Set the url, chainable
-     * 
-     * @param string $url
-     * 
+     *
+     *
      * @return $this
      */
     public function url(string $url): static
     {
         $this->setUrl($url);
+
         return $this;
     }
 
     /**
      * Set the link quietly
-     * 
-     * @param string $link
-     * @param mixed $parameters
-     * @param bool $absolute
-     * 
-     * @return void
      */
     public function setLink(string $link, mixed $parameters = [], bool $absolute = true): void
     {
         match (true) {
-            str($link)->startsWith(['http', 'https', '/']) => $this->setUrl($link),
+            str($link)->startsWith(['http', 'https', '/', '#']) => $this->setUrl($link),
             default => $this->setRoute($link, $parameters, $absolute),
         };
     }
 
     /**
      * Set the link, chainable
-     * 
-     * @param string $link
-     * @param mixed $parameters
-     * @param bool $absolute
-     * 
+     *
+     *
      * @return $this
      */
     public function link(string $link, mixed $parameters = [], bool $absolute = true): static
@@ -212,36 +199,10 @@ class NavItem extends Primitive
     }
 
     /**
-     * Determine if the link is set
-     * 
-     * @return bool
+     * Get the link. The link cannot be null
      */
-    public function hasLink(): bool
+    public function getLink(): string
     {
-        return isset($this->link);
-    }
-
-    /**
-     * Determine if the link is not set
-     * 
-     * @return bool
-     */
-    public function missingLink(): bool
-    {
-        return ! $this->hasLink();
-    }
-
-    /**
-     * Get the link
-     * 
-     * @return string|null
-     */
-    public function getLink(): ?string
-    {
-        if ($this->missingLink()) {
-            return null;
-        }
-
         return $this->link;
     }
 }

@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Facade;
  * @method static array<int,\Honed\Nav\NavItem>|array<string,array<int,\Honed\Nav\NavItem>> get(array<int,string>|array{int,string}|array<int,array<int,string>> ...$group) Retrieve the items associated with the provided group(s)
  * @method static \Illuminate\Support\Collection<int,\Honed\Nav\NavItem> collect(array<int,string>|array{int,string}|array<int,array<int,string>> ...$group) Retrieve the items associated with the provided group(s) as a Collection
  * @method static array<int,\Honed\Nav\NavItem>|null for(array<int,string>|array{int,string}|array<int,array<int,string>> ...$group) Alias for `get`
- * 
+ *
  * @see \Honed\Nav\NavGroup
  */
 class Nav extends Facade

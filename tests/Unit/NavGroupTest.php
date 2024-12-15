@@ -4,7 +4,7 @@ use Honed\Nav\NavGroup;
 use Honed\Nav\NavItem;
 
 beforeEach(function () {
-    $this->group = new NavGroup();
+    $this->group = new NavGroup;
 });
 
 it('is empty by default', function () {
@@ -54,30 +54,43 @@ it('can change to retrieve multiple groups', function () {
         ->toHaveKey('default');
 });
 
-// it('can handle different item formats', function () {
-//     $navGroup = new NavGroup();
-    
-//     // Direct NavItem
-//     $navItem = new NavItem('direct', '/direct');
-    
-//     // Array of NavItems
-//     $navItemArray = [new NavItem('array', '/array')];
-    
-//     // Associative array
-//     $assocArray = ['label' => 'assoc', 'href' => '/assoc'];
-    
-//     // Sequential array
-//     $seqArray = ['sequential', '/sequential'];
-    
-//     $navGroup->items('default', 
-//         $navItem,
-//         $navItemArray,
-//         $assocArray,
-//         $seqArray
-//     );
-    
-//     $items = $navGroup->get('default');
-    
-//     expect($items)->toHaveCount(4);
+it('prevents adding items which do not meet specifications', function () {
+    expect($this->group->items('default', 'Home', '/')->get())
+        ->toBeEmpty();
+});
+
+it('accepts a group key and a NavItem', function () {
+    expect($this->group->items('new', NavItem::make('Home', '/'))
+        ->get('new'))
+        ->toHaveCount(1);
+});
+
+// it('accepts an array of NavItems', function () {
+//     expect($this->group->items([NavItem::make('Home', '/'), NavItem::make('About', '/about')]))
+//         ->get()->toHaveCount(2);
 // });
 
+it('accepts an associative array', function () {
+    expect($this->group->items(['label' => 'Home', 'link' => '/'])
+        ->get())
+        ->toHaveCount(1);
+});
+
+it('accepts a sequential array', function () {
+    expect($this->group->items(['Home', '/'], ['About', '/about']))
+        ->get()->toHaveCount(2);
+});
+
+it('can append to a single group with enforced typing', function () {
+    expect($this->group->group('new', NavItem::make('Home', '/'))
+        ->group('new', NavItem::make('About', '/about'))
+        ->get('new'))
+        ->toHaveCount(2);
+});
+
+it('has alias `for` for `get`', function () {
+    expect($this->group->items('new', NavItem::make('Home', '/'))
+        ->items('new', NavItem::make('About', '/about'))
+        ->for('new'))
+        ->toHaveCount(2);
+});
