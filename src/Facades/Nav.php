@@ -1,23 +1,28 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Honed\Nav\Facades;
 
+use Honed\Nav\Manager;
 use Illuminate\Support\Facades\Facade;
 
 /**
- * @method static \Honed\Nav\NavGroup items(string|array<int,\Honed\Nav\NavItem>|\Honed\Nav\NavItem|array<int,array<int,\Honed\Nav\NavItem>>|array<int,mixed>|array<string,mixed> $group, array<int,\Honed\Nav\NavItem>|array<int,array<int,\Honed\Nav\NavItem>>|array<int,mixed>|array<string,mixed> ...$items) Add a set of items to the default or specified group
- * @method static \Honed\Nav\NavGroup use(array<int,string>|array<int,true>|array<int,array<int,string>> ...$group) Set the group to use for retrieving navigations items
- * @method static \Honed\Nav\NavGroup group(string $group, array<int,\Honed\Nav\NavItem>|\Honed\Nav\NavItem ...$items) Add a set of items to a given group, with the group name being enforced
- * @method static array<int,\Honed\Nav\NavItem>|array<string,array<int,\Honed\Nav\NavItem>> get(array<int,string>|array{int,string}|array<int,array<int,string>> ...$group) Retrieve the items associated with the provided group(s)
- * @method static \Illuminate\Support\Collection<int,\Honed\Nav\NavItem> collect(array<int,string>|array{int,string}|array<int,array<int,string>> ...$group) Retrieve the items associated with the provided group(s) as a Collection
- * @method static array<int,\Honed\Nav\NavItem>|null for(array<int,string>|array{int,string}|array<int,array<int,string>> ...$group) Alias for `get`
- *
- * @see \Honed\Nav\NavGroup
+ * @method static \Honed\Nav\Nav make(string $group, array<int,\Honed\Nav\NavItem|\Honed\Nav\NavGroup> $items) Configure a new navigation group
+ * @method static \Honed\Nav\Nav add(string $group, array<int,\Honed\Nav\NavItem|\Honed\Nav\NavGroup> $items) Append a navigation item to the provided group
+ * @method static array<int|string,mixed> get(string ...$groups) Retrieve the navigation items associated with the provided group(s)
+ * @method static array<\Honed\Nav\NavItem|\Honed\Nav\NavGroup> group(string $group) Retrieve the navigation items associated with the provided group
+ * @method static bool hasGroups(string ...$groups) Determine if the provided group(s) have navigation defined
+ * @method static \Honed\Nav\Manager share(string ...$groups) Share the navigation items via Inertia
+ * 
+ * @see \Honed\Nav\Manager
  */
 class Nav extends Facade
 {
+    const ShareProp = Manager::ShareProp;
+
     protected static function getFacadeAccessor(): string
     {
-        return \Honed\Nav\NavGroup::class;
+        return Manager::class;
     }
 }

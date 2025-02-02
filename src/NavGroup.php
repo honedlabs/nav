@@ -1,137 +1,59 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Honed\Nav;
 
-use Illuminate\Support\Collection;
+use Honed\Core\Primitive;
+use Honed\Core\Concerns\HasLabel;
+use Honed\Core\Concerns\Allowable;
+use Honed\Core\Concerns\Evaluable;
 
-class NavGroup
+/**
+ * @extends Primitive<string, mixed>
+ */
+class NavGroup extends Primitive
 {
-    /**
-     * The navigation group items
-     *
-     * @var array<string, array<\Honed\Nav\NavItem>>
-     */
-    protected $items = [];
+    use Concerns\HasItems;
+    use HasLabel;
+    use Allowable;
 
     /**
-     * The groups to select from the items array when retrieving nav items
-     *
-     * @var string|true|array<int,string>
+     * @param  array<int,\Honed\Nav\NavItem|\Honed\Nav\NavGroup>  $items
      */
-    protected $group = 'default';
-
-    /**
-     * Create a new NavGroup instance
-     *
-     * @param  string|array<int,\Honed\Nav\NavItem>|\Honed\Nav\NavItem|array<int,array<int,\Honed\Nav\NavItem>>|array<int,mixed>|array<string,mixed>|null  $group
-     * @param  array<int,\Honed\Nav\NavItem>|array<int,array<int,\Honed\Nav\NavItem>>|array<int,mixed>|array<string,mixed>  ...$items
-     */
-    public function __construct($group = null, ...$items)
+    public function __construct(string $label, array $items = [])
     {
-        if ($group) {
-            $this->items($group, ...$items);
-        }
+        $this->label($label);
+        $this->items($items);
     }
 
     /**
-     * Add a set of items to the default or specified group.
-     *
-     * @param  string|array<int,\Honed\Nav\NavItem>|\Honed\Nav\NavItem|array<int,array<int,\Honed\Nav\NavItem>>|array<int,mixed>|array<string,mixed>  $group
-     * @param  array<int,\Honed\Nav\NavItem>|array<int,array<int,\Honed\Nav\NavItem>>|array<int,mixed>|array<string,mixed>  ...$items
-     * @return $this
+     * @param  array<int,\Honed\Nav\NavItem|\Honed\Nav\NavGroup>  $items
      */
-    public function items($group, ...$items): static
+    public static function make(string $label, array $items = []): static
     {
-        $result = \is_string($group) ?
-            [$group, $items] :
-            ['default', [$group, ...$items]];
-
-        /**
-         * @var string $group
-         * @var array<int,\Honed\Nav\NavItem>|array<int,array<int,\Honed\Nav\NavItem>>|array<int,mixed>|array<string,mixed> $items
-         */
-        [$group, $items] = $result;
-
-        $this->items[$group] ??= [];
-
-        foreach ($items as $item) {
-            match (true) {
-                $item instanceof NavItem => $this->items[$group][] = $item,
-                \is_array($item) && isset($item[0]) && $item[0] instanceof NavItem => $this->items[$group][] = $item[0],
-                \is_array($item) && \array_is_list($item) => $this->items[$group][] = NavItem::make(...$item),
-                \is_array($item) => $this->items[$group][] = NavItem::make(...\array_values($item)), // @phpstan-ignore-line
-                default => null
-            };
-        }
-
-        return $this;
+        return resolve(static::class, compact('label', 'items'));
     }
 
     /**
-     * Set the group to use for retrieving navigations items.
-     *
-     * @param  array<int,string>|array<int,true>|array<int,array<int,string>>  ...$group
-     * @return $this
+     * @return array<string,mixed>
      */
-    public function use(...$group): static
+    public function toArray(): array
     {
-        $this->group = collect($group) // @phpstan-ignore-line
-            ->flatten()
-            ->when(count($group) === 1,
-                fn (Collection $collection) => $collection->first(),
-                fn (Collection $collection) => $collection->toArray()
-            );
-
-        return $this;
+        return [
+            'label' => $this->getLabel(),
+            'items' => $this->getAllowedItems(),
+        ];
     }
 
     /**
-     * Add a set of items to a given group, with the group name being enforced.
-     *
-     * @param  array<int,\Honed\Nav\NavItem>|\Honed\Nav\NavItem  $items
+     * @return array<int,\Honed\Nav\NavItem|\Honed\Nav\NavGroup>
      */
-    public function group(string $group, ...$items): static
+    public function getAllowedItems(): array
     {
-        return $this->items($group, ...$items);
-    }
-
-    /**
-     * Retrieve the items associated with the provided group(s)
-     *
-     * @param  array<int,string>|array{int,true}|array<int,array<int,string>>  ...$group
-     * @return array<int,\Honed\Nav\NavItem>|array<string,array<int,\Honed\Nav\NavItem>>
-     */
-    public function get(...$group)
-    {
-        $groups = collect([count($group) === 0 ? $this->group : $group])
-            ->flatten()
-            ->filter();
-
-        return match (true) {
-            $groups->count() === 1 => $this->items[$groups->first()] ?? [],
-            default => $groups->mapWithKeys(fn ($key) => [$key => $this->items[$key] ?? []])->all()
-        };
-    }
-
-    /**
-     * Retrieve the items associated with the provided group(s) as a Collection
-     *
-     * @param  string|true|array<int,string>  ...$group
-     * @return \Illuminate\Support\Collection<int|string,\Honed\Nav\NavItem|array<int,\Honed\Nav\NavItem>>
-     */
-    public function collect(...$group): Collection
-    {
-        return collect($this->get(...$group));
-    }
-
-    /**
-     * Alias for `get`
-     *
-     * @param  string|true|array<int,string>  ...$group
-     * @return array<int,\Honed\Nav\NavItem>|array<string,array<int,\Honed\Nav\NavItem>>
-     */
-    public function for(...$group)
-    {
-        return $this->get(...$group);
+        return \array_filter(
+            $this->getItems(), 
+            fn (NavItem|NavGroup $nav) => $nav->allows(),
+        );
     }
 }
