@@ -34,7 +34,7 @@ trait HasRoute
 
     /**
      * Set the route for this instance.
-     * 
+     *
      * @return $this
      */
     public function route(string|\Closure|null $route, mixed $parameters = []): static
@@ -51,14 +51,14 @@ trait HasRoute
 
     /**
      * Set the url for this instance.
-     * 
+     *
      * @return $this
      */
     public function url(string|\Closure|null $url): static
     {
         if (! \is_null($url)) {
-            $this->route = $url instanceof \Closure 
-                ? $url 
+            $this->route = $url instanceof \Closure
+                ? $url
                 : URL::to($url);
         }
 
@@ -67,10 +67,10 @@ trait HasRoute
 
     /**
      * Set the HTTP method for the route.
-     * 
+     *
      * @return $this
      */
-    public function method(?string $method): static 
+    public function method(?string $method): static
     {
         if (\is_null($method)) {
             return $this;
@@ -89,7 +89,7 @@ trait HasRoute
 
     /**
      * Mark the route as being an external url.
-     * 
+     *
      * @return $this
      */
     public function external(?string $url = null): static
@@ -117,7 +117,7 @@ trait HasRoute
 
     /**
      * Retrieve the route for this instance, resolving any closures.
-     * 
+     *
      * @param  array<string,mixed>  $parameters
      * @param  array<string,mixed>  $typed
      */
@@ -128,7 +128,7 @@ trait HasRoute
 
     /**
      * Get the HTTP method for the route.
-     * 
+     *
      * @default \Symfony\Component\HttpFoundation\Request::METHOD_GET
      */
     public function getMethod(): string
