@@ -4,18 +4,19 @@ declare(strict_types=1);
 
 namespace Honed\Nav;
 
-use Honed\Core\Concerns\Allowable;
-use Honed\Core\Concerns\HasLabel;
 use Honed\Core\Primitive;
+use Honed\Core\Concerns\HasLabel;
+use Honed\Core\Concerns\Allowable;
+use Honed\Core\Concerns\Evaluable;
 
 /**
  * @extends Primitive<string, mixed>
  */
 class NavGroup extends Primitive
 {
-    use Allowable;
     use Concerns\HasItems;
     use HasLabel;
+    use Allowable;
 
     /**
      * @param  array<int,\Honed\Nav\NavItem|\Honed\Nav\NavGroup>  $items
@@ -51,7 +52,7 @@ class NavGroup extends Primitive
     public function getAllowedItems(): array
     {
         return \array_filter(
-            $this->getItems(),
+            $this->getItems(), 
             fn (NavItem|NavGroup $nav) => $nav->allows(),
         );
     }
