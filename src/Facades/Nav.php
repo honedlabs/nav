@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Facade;
  * @method static array<\Honed\Nav\NavItem|\Honed\Nav\NavGroup> group(string $group) Retrieve the navigation items associated with the provided group
  * @method static bool hasGroups(string ...$groups) Determine if the provided group(s) have navigation defined
  * @method static \Honed\Nav\Manager share(string ...$groups) Share the navigation items via Inertia
- * 
+ *
  * @see \Honed\Nav\Manager
  */
 class Nav extends Facade
