@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Honed\Nav\NavGroup;
 use Honed\Nav\NavItem;
+use Honed\Nav\NavGroup;
 
 beforeEach(function () {
     $this->label = 'Pages';
@@ -27,8 +27,8 @@ it('can filter allowed items', function () {
     expect($group->getAllowedItems())
         ->toBeArray()->toHaveCount(1)
         ->{0}->scoped(fn ($item) => $item
-        ->getLabel()->toBe('Home')
-        );
+            ->getLabel()->toBe('Home')
+        );     
 });
 
 it('can add items', function () {
