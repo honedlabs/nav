@@ -15,10 +15,9 @@ trait HasItems
     protected $items;
 
     /**
-     * Set the navigation items.    
-     * 
+     * Set the navigation items.
+     *
      * @param  array<int,\Honed\Nav\NavItem|\Honed\Nav\NavGroup>|null  $items
-     * 
      * @return $this
      */
     public function items(?array $items): static
@@ -32,9 +31,8 @@ trait HasItems
 
     /**
      * Append a navigation item to the instance.
-     * 
-     * @param  \Honed\Nav\NavItem|\Honed\Nav\NavGroup  $item
-     * 
+     *
+     *
      * @return $this
      */
     public function add(NavItem|NavGroup $item): static
@@ -50,7 +48,7 @@ trait HasItems
 
     /**
      * Get the navigation items.
-     * 
+     *
      * @return array<int,\Honed\Nav\NavItem|\Honed\Nav\NavGroup>
      */
     public function getItems(): array
