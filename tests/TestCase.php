@@ -5,18 +5,17 @@ declare(strict_types=1);
 namespace Honed\Nav\Tests;
 
 use Honed\Nav\Middleware\ShareNavigation;
-use Honed\Nav\Middleware\SharesNavigation;
 use Honed\Nav\NavServiceProvider;
-use Illuminate\Support\Facades\View;
-use Inertia\Inertia;
-use Inertia\ServiceProvider as InertiaServiceProvider;
+use Honed\Nav\Tests\Stubs\Product;
+use Honed\Nav\Tests\Stubs\Status;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Support\Facades\Schema;
-use Orchestra\Testbench\TestCase as Orchestra;
-use Honed\Nav\Tests\Stubs\Status;
-use Honed\Nav\Tests\Stubs\Product;
+use Illuminate\Support\Facades\View;
+use Inertia\Inertia;
 use Inertia\Middleware as HandlesInertiaRequests;
+use Inertia\ServiceProvider as InertiaServiceProvider;
+use Orchestra\Testbench\TestCase as Orchestra;
 
 class TestCase extends Orchestra
 {
@@ -58,7 +57,7 @@ class TestCase extends Orchestra
         $router->middleware([HandlesInertiaRequests::class, SubstituteBindings::class])->group(function ($router) {
             $router->middleware(ShareNavigation::class)->get('/', fn () => inertia('Home'));
 
-            $router->middleware(ShareNavigation::class . ':sidebar')->get('/products', fn () => inertia('Products/Index'))->name('products.index');
+            $router->middleware(ShareNavigation::class.':sidebar')->get('/products', fn () => inertia('Products/Index'))->name('products.index');
             $router->get('/products/{product:public_id}', fn (Product $product) => inertia('Products/Show', ['product' => $product]))->name('products.show');
             $router->get('/products/{product}/edit', fn (Product $product) => inertia('Products/Edit', ['product' => $product]))->name('products.edit');
 

@@ -17,9 +17,8 @@ class Manager
 
     /**
      * Configure a new navigation group.
-     * 
-     * @param array<int,\Honed\Nav\NavItem|\Honed\Nav\NavGroup> $items
-     * 
+     *
+     * @param  array<int,\Honed\Nav\NavItem|\Honed\Nav\NavGroup>  $items
      * @return $this
      */
     public function make(string $group, array $items): static
@@ -30,10 +29,9 @@ class Manager
     }
 
     /**
-     * Append a navigation item to the provided group.  
-     * 
-     * @param array<int,\Honed\Nav\NavItem|\Honed\Nav\NavGroup> $items
-     * 
+     * Append a navigation item to the provided group.
+     *
+     * @param  array<int,\Honed\Nav\NavItem|\Honed\Nav\NavGroup>  $items
      * @return $this
      */
     public function add(string $group, array $items): static
@@ -45,9 +43,8 @@ class Manager
 
     /**
      * Retrieve the navigation item and groups associated with the provided group(s).
-     * 
-     * @param string ...$groups
-     * 
+     *
+     * @param  string  ...$groups
      * @return array<int|string,mixed>
      */
     public function get(...$groups): array
@@ -56,7 +53,7 @@ class Manager
             0 => \array_combine(
                 \array_keys($this->items),
                 \array_map(
-                    fn ($group) => $this->getAllowedItems($group), 
+                    fn ($group) => $this->getAllowedItems($group),
                     \array_keys($this->items)
                 )
             ),
@@ -80,7 +77,7 @@ class Manager
 
     /**
      * Retrieve the navigation items associated with the provided group.
-     * 
+     *
      * @return array<\Honed\Nav\NavItem|\Honed\Nav\NavGroup>
      */
     public function group(string $group)
@@ -90,8 +87,8 @@ class Manager
 
     /**
      * Determine if all provided group(s) are defined.
-     * 
-     * @param string ...$groups
+     *
+     * @param  string  ...$groups
      */
     public function hasGroups(...$groups): bool
     {
@@ -104,16 +101,15 @@ class Manager
     public function getAllowedItems(string $group): array
     {
         return \array_filter(
-            $this->items[$group], 
+            $this->items[$group],
             fn (NavItem|NavGroup $nav) => $nav->allows(),
         );
     }
 
     /**
      * Share the navigation items via Inertia.
-     * 
-     * @param string ...$groups
-     * 
+     *
+     * @param  string  ...$groups
      * @return $this
      */
     public function share(...$groups): static

@@ -7,14 +7,13 @@ namespace Honed\Nav\Middleware;
 use Closure;
 use Honed\Nav\Facades\Nav;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 
 class ShareNavigation
 {
     /**
      * Handle the incoming request.
      *
-     * @param  string ...$groups
+     * @param  string  ...$groups
      * @return \Closure
      */
     public function handle(Request $request, Closure $next, ...$groups)
