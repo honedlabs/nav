@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace Honed\Nav;
 
+use Honed\Core\Primitive;
 use Honed\Core\Concerns\Allowable;
 use Honed\Core\Concerns\Evaluable;
+use Illuminate\Support\Facades\URL;
 use Honed\Core\Concerns\HasDestination;
 use Honed\Core\Concerns\HasIcon;
 use Honed\Core\Concerns\HasLabel;
-use Honed\Core\Primitive;
+use Honed\Nav\Tests\Stubs\Product;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Route;
 
@@ -18,12 +20,12 @@ use Illuminate\Routing\Route;
  */
 class NavItem extends Primitive
 {
+    use HasLabel;
     use Allowable;
-    use Concerns\HasRoute;
-    use Evaluable;
     use HasDestination;
     use HasIcon;
-    use HasLabel;
+    use Concerns\HasRoute;
+    use Evaluable;
 
     /**
      * @var string|\Closure|null
