@@ -52,7 +52,7 @@ class NavGroup extends Primitive
     {
         return \array_filter(
             $this->getItems(),
-            fn (NavItem|NavGroup $nav) => $nav->allows(),
+            fn (NavItem|NavGroup $nav) => $nav->isAllowed(),
         );
     }
 }

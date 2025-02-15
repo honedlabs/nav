@@ -102,7 +102,7 @@ class Manager
     {
         return \array_filter(
             $this->items[$group],
-            fn (NavItem|NavGroup $nav) => $nav->allows(),
+            fn (NavItem|NavGroup $nav) => $nav->isAllowed(),
         );
     }
 
