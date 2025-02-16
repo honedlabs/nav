@@ -7,7 +7,7 @@ if (! \function_exists('nav')) {
      * Nav facade accessor
      *
      * @param string|
-     * @return \Honed\Nav\Nav
+     * @return \Honed\Nav\Manager
      */
     function nav($group = null, ...$items)
     {

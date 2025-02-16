@@ -49,19 +49,19 @@ it('can retrieve all items', function () {
         ->toHaveCount(2)
         ->toHaveKeys(['nav', 'sidebar'])
         ->{'nav'}->scoped(fn ($nav) => $nav
-        ->toBeArray()
-        ->toHaveCount(1)
+            ->toBeArray()
+            ->toHaveCount(1)
         )->{'sidebar'}->scoped(fn ($sidebar) => $sidebar
-        ->toBeArray()
-        ->toHaveCount(1)
-        ->{0}->scoped(fn ($group) => $group
-        ->toBeInstanceOf(NavGroup::class)
-        ->getLabel()->toBe('Products')
-        ->getAllowedItems()->scoped(fn ($items) => $items
-        ->toBeArray()
-        ->toHaveCount(2)
-        )
-        )
+            ->toBeArray()
+            ->toHaveCount(1)
+            ->{0}->scoped(fn ($group) => $group
+                ->toBeInstanceOf(NavGroup::class)
+                ->getLabel()->toBe('Products')
+                ->getItems()->scoped(fn ($items) => $items
+                    ->toBeArray()
+                    ->toHaveCount(2)
+                )
+            )
         );
 });
 
@@ -70,12 +70,12 @@ it('can retrieve items by group', function () {
         ->toBeArray()
         ->toHaveCount(1)
         ->{0}->scoped(fn ($group) => $group
-        ->toBeInstanceOf(NavGroup::class)
-        ->getLabel()->toBe('Products')
-        ->getAllowedItems()->scoped(fn ($items) => $items
-        ->toBeArray()
-        ->toHaveCount(2)
-        )
+            ->toBeInstanceOf(NavGroup::class)
+            ->getLabel()->toBe('Products')
+            ->getItems()->scoped(fn ($items) => $items
+                ->toBeArray()
+                ->toHaveCount(2)
+            )
         );
 });
 
@@ -85,19 +85,19 @@ it('can retrieve multiple groups', function () {
         ->toHaveCount(2)
         ->toHaveKeys(['nav', 'sidebar'])
         ->{'nav'}->scoped(fn ($nav) => $nav
-        ->toBeArray()
-        ->toHaveCount(1)
+            ->toBeArray()
+            ->toHaveCount(1)
         )->{'sidebar'}->scoped(fn ($sidebar) => $sidebar
-        ->toBeArray()
-        ->toHaveCount(1)
-        ->{0}->scoped(fn ($group) => $group
-        ->toBeInstanceOf(NavGroup::class)
-        ->getLabel()->toBe('Products')
-        ->getAllowedItems()->scoped(fn ($items) => $items
-        ->toBeArray()
-        ->toHaveCount(2)
-        )
-        )
+            ->toBeArray()
+            ->toHaveCount(1)
+            ->{0}->scoped(fn ($group) => $group
+                ->toBeInstanceOf(NavGroup::class)
+                ->getLabel()->toBe('Products')
+                ->getItems()->scoped(fn ($items) => $items
+                    ->toBeArray()
+                    ->toHaveCount(2)
+                )
+            )
         );
 });
 

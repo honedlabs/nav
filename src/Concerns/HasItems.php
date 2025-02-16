@@ -4,38 +4,42 @@ declare(strict_types=1);
 
 namespace Honed\Nav\Concerns;
 
-use Honed\Nav\NavGroup;
-use Honed\Nav\NavItem;
+use Honed\Nav\NavBase;
+use Illuminate\Contracts\Support\Arrayable;
 
 trait HasItems
 {
     /**
-     * @var array<int,\Honed\Nav\NavItem|\Honed\Nav\NavGroup>|null
+     * List of navigation items.
+     *
+     * @var array<int,\Honed\Nav\NavBase>
      */
-    protected $items;
+    protected $items = [];
 
     /**
      * Set the navigation items.
      *
-     * @param  array<int,\Honed\Nav\NavItem|\Honed\Nav\NavGroup>|null  $items
+     * @param  iterable<\Honed\Nav\NavBase>  $items
      * @return $this
      */
-    public function items(?array $items): static
+    public function items(iterable $items): static
     {
-        if (! \is_null($items)) {
-            $this->items = $items;
+        if ($items instanceof Arrayable) {
+            $items = $items->toArray();
         }
+
+        /** @var array<int,\Honed\Nav\NavBase> $items */
+        $this->items = $items;
 
         return $this;
     }
 
     /**
-     * Append a navigation item to the instance.
-     *
+     * Append a navigation item to list of items.
      *
      * @return $this
      */
-    public function add(NavItem|NavGroup $item): static
+    public function addItem(NavBase $item): static
     {
         if (! $this->items) {
             $this->items = [];
@@ -47,20 +51,38 @@ trait HasItems
     }
 
     /**
-     * Get the navigation items.
+     * Retrieve the allowed navigation items.
      *
-     * @return array<int,\Honed\Nav\NavItem|\Honed\Nav\NavGroup>
+     * @return array<int,\Honed\Nav\NavBase>
      */
     public function getItems(): array
     {
-        return $this->items ?? [];
+        return \array_values(
+            \array_filter(
+                $this->items,
+                static fn (NavBase $item) => $item->isAllowed(),
+            )
+        );
     }
 
     /**
-     * Determine if the instance has navigation items.
+     * Determine if the instance has any navigation items.
      */
     public function hasItems(): bool
     {
-        return ! \is_null($this->items);
+        return filled($this->items);
+    }
+
+    /**
+     * Get the navigation items as an array
+     *
+     * @return array<int,mixed>
+     */
+    public function itemsToArray(): array
+    {
+        return \array_map(
+            static fn (NavBase $item) => $item->toArray(),
+            $this->items,
+        );
     }
 }

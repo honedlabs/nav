@@ -4,24 +4,12 @@ declare(strict_types=1);
 
 namespace Honed\Nav;
 
-use Honed\Core\Concerns\Allowable;
-use Honed\Core\Concerns\Evaluable;
-use Honed\Core\Concerns\HasIcon;
-use Honed\Core\Concerns\HasLabel;
 use Honed\Core\Concerns\HasRoute;
-use Honed\Core\Primitive;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Route;
 
-/**
- * @extends Primitive<string, mixed>
- */
-class NavItem extends Primitive
+class NavItem extends NavBase
 {
-    use Allowable;
-    use Evaluable;
-    use HasIcon;
-    use HasLabel;
     use HasRoute;
 
     /**
@@ -29,28 +17,25 @@ class NavItem extends Primitive
      */
     protected $active;
 
-    public function __construct(string $label, string|\Closure|null $route = null, mixed $parameters = [])
-    {
-        $this->label($label);
-        $this->route($route, $parameters);
-    }
-
+    /**
+     * Create a new nav item instance.
+     */
     public static function make(string $label, string|\Closure|null $route = null, mixed $parameters = []): static
     {
-        return resolve(static::class, compact('label', 'route', 'parameters'));
+        return resolve(static::class)
+            ->label($label)
+            ->route($route, $parameters);
     }
 
     /**
-     * @return array<string,mixed>
+     * {@inheritDoc}
      */
     public function toArray(): array
     {
-        return [
-            'label' => $this->getLabel(),
+        return \array_merge(parent::toArray(), [
             'href' => $this->getRoute(),
             'active' => $this->isActive(),
-            ...($this->hasIcon() ? ['icon' => $this->getIcon()] : []),
-        ];
+        ]);
     }
 
     /**
@@ -81,46 +66,46 @@ class NavItem extends Primitive
         };
     }
 
-    /**
-     * @return array<int,mixed>
-     */
-    protected function resolveDefaultClosureDependencyForEvaluationByName(string $parameterName): array
-    {
-        $request = request();
+    // /**
+    //  * @return array<int,mixed>
+    //  */
+    // public function resolveDefaultClosureDependencyForEvaluationByName(string $parameterName): array
+    // {
+    //     $request = request();
 
-        if ($request->route()?->hasParameter($parameterName)) {
-            return [$request->route()->parameter($parameterName)];
-        }
+    //     if ($request->route()?->hasParameter($parameterName)) {
+    //         return [$request->route()->parameter($parameterName)];
+    //     }
 
-        return match ($parameterName) {
-            'name' => [$request->route()?->getName()],
-            'url' => [$request->url()],
-            'uri' => [$request->uri()->path()],
-            'request' => [$request],
-            'route' => [$request->route()],
-            default => [],
-        };
-    }
+    //     return match ($parameterName) {
+    //         'name' => [$request->route()?->getName()],
+    //         'url' => [$request->url()],
+    //         'uri' => [$request->uri()->path()],
+    //         'request' => [$request],
+    //         'route' => [$request->route()],
+    //         default => [],
+    //     };
+    // }
 
-    /**
-     * @return array<int,mixed>
-     */
-    protected function resolveDefaultClosureDependencyForEvaluationByType(string $parameterType): array
-    {
-        $request = request();
+    // /**
+    //  * @return array<int,mixed>
+    //  */
+    // public function resolveDefaultClosureDependencyForEvaluationByType(string $parameterType): array
+    // {
+    //     $request = request();
 
-        $parameters = $request->route()?->parameters() ?? [];
+    //     $parameters = $request->route()?->parameters() ?? [];
 
-        foreach ($parameters as $parameter) {
-            if ($parameter instanceof $parameterType) {
-                return [$parameter];
-            }
-        }
+    //     foreach ($parameters as $parameter) {
+    //         if ($parameter instanceof $parameterType) {
+    //             return [$parameter];
+    //         }
+    //     }
 
-        return match ($parameterType) {
-            Request::class => [$request],
-            Route::class => [$request->route()],
-            default => [],
-        };
-    }
+    //     return match ($parameterType) {
+    //         Request::class => [$request],
+    //         Route::class => [$request->route()],
+    //         default => [],
+    //     };
+    // }
 }
