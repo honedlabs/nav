@@ -4,18 +4,18 @@ declare(strict_types=1);
 
 namespace Honed\Nav\Tests;
 
-use Inertia\Inertia;
-use Illuminate\Routing\Router;
 use Honed\Nav\NavServiceProvider;
-use Honed\Nav\Tests\Stubs\Status;
-use Illuminate\Support\Facades\View;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Honed\Nav\Tests\Stubs\ProductController;
-use Orchestra\Testbench\TestCase as Orchestra;
-use Inertia\Middleware as HandlesInertiaRequests;
+use Honed\Nav\Tests\Stubs\Status;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Routing\Middleware\SubstituteBindings;
+use Illuminate\Routing\Router;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\View;
+use Inertia\Inertia;
+use Inertia\Middleware as HandlesInertiaRequests;
 use Inertia\ServiceProvider as InertiaServiceProvider;
+use Orchestra\Testbench\TestCase as Orchestra;
 
 class TestCase extends Orchestra
 {
@@ -66,8 +66,8 @@ class TestCase extends Orchestra
     protected function defineRoutes($router)
     {
         $router->middleware([
-            HandlesInertiaRequests::class, 
-            SubstituteBindings::class
+            HandlesInertiaRequests::class,
+            SubstituteBindings::class,
         ])->group(function (Router $router) {
 
             $router->middleware('nav:primary')
@@ -75,7 +75,7 @@ class TestCase extends Orchestra
 
             $router->middleware('nav:primary,products')
                 ->resource('products', ProductController::class);
-            
+
             $router->get('/about', fn () => inertia('About'));
             $router->get('/contact', fn () => inertia('Contact'));
             $router->get('/dashboard', fn () => inertia('Dashboard'));

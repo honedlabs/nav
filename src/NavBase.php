@@ -43,7 +43,7 @@ abstract class NavBase extends Primitive
     public function resolveDefaultClosureDependencyForEvaluationByName(string $parameterName): array
     {
         $this->request = request();
-        
+
         return $this->resolveRequestClosureDependencyForEvaluationByName($parameterName);
     }
 

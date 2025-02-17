@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Honed\Nav;
 
-use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\ServiceProvider;
 
 class NavServiceProvider extends ServiceProvider
 {
@@ -34,7 +34,7 @@ class NavServiceProvider extends ServiceProvider
         $this->registerNavigation();
     }
 
-        /**
+    /**
      * Register the middleware alias.
      */
     protected function registerMiddleware(): void

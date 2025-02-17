@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Honed\Nav\Concerns;
 
 use Honed\Nav\NavBase;
-use Illuminate\Contracts\Support\Arrayable;
 
 trait HasItems
 {

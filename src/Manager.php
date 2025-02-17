@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Honed\Nav;
 
 use Honed\Nav\Support\Parameters;
-use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Arr;
 use Inertia\Inertia;
 
@@ -63,8 +62,8 @@ class Manager
 
     /**
      * Determine if the group(s) exists.
-     * 
-     * @param string|array<int,string> $groups
+     *
+     * @param  string|array<int,string>  $groups
      */
     public function hasGroup(string|array $groups): bool
     {
@@ -78,7 +77,7 @@ class Manager
     /**
      * Retrieve navigation groups and their allowed items.
      *
-     * @param string|array<int,string> $groups
+     * @param  string|array<int,string>  $groups
      * @return array<int|string,mixed>
      */
     public function get(...$groups): array
@@ -113,7 +112,7 @@ class Manager
         $items = Arr::get($this->items, $group);
 
         return \array_values(
-            \array_filter($items, 
+            \array_filter($items,
                 fn (NavBase $item) => $item->isAllowed()
             )
         );
@@ -121,15 +120,13 @@ class Manager
 
     /**
      * Share the navigation items with Inertia.
-     * 
-     * @param string|array<int,string> $groups
      *
+     * @param  string|array<int,string>  $groups
      * @return $this
      */
     public function share(...$groups): static
     {
         $groups = $this->get(...$groups);
-
 
         Inertia::share(Parameters::Prop, $groups);
 
