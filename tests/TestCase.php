@@ -4,18 +4,18 @@ declare(strict_types=1);
 
 namespace Honed\Nav\Tests;
 
-use Honed\Nav\Middleware\ShareNavigation;
-use Honed\Nav\NavServiceProvider;
-use Honed\Nav\Tests\Stubs\Product;
-use Honed\Nav\Tests\Stubs\Status;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Routing\Middleware\SubstituteBindings;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\View;
 use Inertia\Inertia;
-use Inertia\Middleware as HandlesInertiaRequests;
-use Inertia\ServiceProvider as InertiaServiceProvider;
+use Illuminate\Routing\Router;
+use Honed\Nav\NavServiceProvider;
+use Honed\Nav\Tests\Stubs\Status;
+use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Honed\Nav\Tests\Stubs\ProductController;
 use Orchestra\Testbench\TestCase as Orchestra;
+use Inertia\Middleware as HandlesInertiaRequests;
+use Illuminate\Routing\Middleware\SubstituteBindings;
+use Inertia\ServiceProvider as InertiaServiceProvider;
 
 class TestCase extends Orchestra
 {
@@ -25,9 +25,20 @@ class TestCase extends Orchestra
 
         View::addLocation(__DIR__.'/Stubs');
         Inertia::setRootView('app');
+
+        $this->withoutExceptionHandling();
+
         config()->set('inertia.testing.ensure_pages_exist', false);
         config()->set('inertia.testing.page_paths', [realpath(__DIR__)]);
+    }
 
+    protected function resolveApplicationConfiguration($app)
+    {
+        parent::resolveApplicationConfiguration($app);
+
+        // Fix to prevent missing names in testing
+        $this->defineRoutes($app['router']);
+        config()->set('nav.files', realpath(__DIR__).'/Fixtures/nav.php');
     }
 
     protected function getPackageProviders($app)
@@ -45,7 +56,7 @@ class TestCase extends Orchestra
             $table->uuid('public_id')->unique();
             $table->string('name');
             $table->text('description')->nullable();
-            $table->string('status')->default(Status::AVAILABLE->value);
+            $table->string('status')->default(Status::Available->value);
             $table->unsignedInteger('price')->default(0);
             $table->boolean('best_seller')->default(false);
             $table->timestamps();
@@ -54,20 +65,25 @@ class TestCase extends Orchestra
 
     protected function defineRoutes($router)
     {
-        $router->middleware([HandlesInertiaRequests::class, SubstituteBindings::class])->group(function ($router) {
-            $router->middleware(ShareNavigation::class)->get('/', fn () => inertia('Home'));
+        $router->middleware([
+            HandlesInertiaRequests::class, 
+            SubstituteBindings::class
+        ])->group(function (Router $router) {
 
-            $router->middleware(ShareNavigation::class.':sidebar')->get('/products', fn () => inertia('Products/Index'))->name('products.index');
-            $router->get('/products/{product:public_id}', fn (Product $product) => inertia('Products/Show', ['product' => $product]))->name('products.show');
-            $router->get('/products/{product}/edit', fn (Product $product) => inertia('Products/Edit', ['product' => $product]))->name('products.edit');
+            $router->middleware('nav:primary')
+                ->get('/', fn () => inertia('Home'));
 
-            $router->get('/status/{status}', fn (Status $status) => inertia('Status/Show', ['status' => $status]))->name('status.show');
-            $router->get('/testing/{word}', fn (string $word) => inertia('Testing/Show', ['word' => $word]))->name('words.show');
+            $router->middleware('nav:primary,products')
+                ->resource('products', ProductController::class);
+            
+            $router->get('/about', fn () => inertia('About'));
+            $router->get('/contact', fn () => inertia('Contact'));
+            $router->get('/dashboard', fn () => inertia('Dashboard'));
         });
     }
 
-    protected function getEnvironmentSetUp($app)
-    {
-        $app['config']->set('nav.files', realpath(__DIR__).'/Stubs/nav.php');
-    }
+    // protected function getEnvironmentSetUp($app)
+    // {
+    //     $app['config']->set('nav.files', realpath(__DIR__).'/Fixtures/nav.php');
+    // }
 }

@@ -9,9 +9,7 @@ use Honed\Core\Concerns\HasIcon;
 use Honed\Core\Concerns\HasLabel;
 use Honed\Core\Concerns\HasRequest;
 use Honed\Core\Primitive;
-use Illuminate\Foundation\Auth\User;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Route;
 
 /**
  * @extends Primitive<string, mixed>
@@ -44,14 +42,9 @@ abstract class NavBase extends Primitive
      */
     public function resolveDefaultClosureDependencyForEvaluationByName(string $parameterName): array
     {
-        $request = $this->getRequest();
-
-        return match ($parameterName) {
-            'request' => [$request],
-            'route' => [$request->route()],
-            'user' => [$request->user()],
-            default => [],
-        };
+        $this->request = request();
+        
+        return $this->resolveRequestClosureDependencyForEvaluationByName($parameterName);
     }
 
     /**
@@ -59,16 +52,8 @@ abstract class NavBase extends Primitive
      */
     public function resolveDefaultClosureDependencyForEvaluationByType(string $parameterType): array
     {
-        $request = $this->getRequest();
+        $this->request = request();
 
-        if (\is_subclass_of($parameterType, User::class)) {
-            return [$request->user()];
-        }
-
-        return match ($parameterType) {
-            Request::class => [$request],
-            Route::class => [$request->route()],
-            default => [],
-        };
+        return $this->resolveRequestClosureDependencyForEvaluationByType($parameterType);
     }
 }

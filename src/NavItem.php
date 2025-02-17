@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace Honed\Nav;
 
+use Illuminate\Support\Str;
 use Honed\Core\Concerns\HasRoute;
-use Illuminate\Http\Request;
-use Illuminate\Routing\Route;
 
 class NavItem extends NavBase
 {
@@ -24,7 +23,10 @@ class NavItem extends NavBase
     {
         return resolve(static::class)
             ->label($label)
-            ->route($route, $parameters);
+            ->when(static::isUri($route),
+                fn ($item) => $item->url($route),
+                fn ($item) => $item->route($route, $parameters),
+            );
     }
 
     /**
@@ -58,54 +60,20 @@ class NavItem extends NavBase
     public function isActive(): bool
     {
         $request = request();
-
+        $route = $this->resolveRoute();
+        
         return (bool) match (true) {
             \is_string($this->active) => $request->route()?->named($this->active),
-            \is_callable($this->active) => $this->evaluate($this->active),
-            default => $request->url() === $this->getRoute(),
+            $this->active instanceof \Closure => $this->evaluate($this->active),
+            default => $request->url() === $route,
         };
     }
 
-    // /**
-    //  * @return array<int,mixed>
-    //  */
-    // public function resolveDefaultClosureDependencyForEvaluationByName(string $parameterName): array
-    // {
-    //     $request = request();
-
-    //     if ($request->route()?->hasParameter($parameterName)) {
-    //         return [$request->route()->parameter($parameterName)];
-    //     }
-
-    //     return match ($parameterName) {
-    //         'name' => [$request->route()?->getName()],
-    //         'url' => [$request->url()],
-    //         'uri' => [$request->uri()->path()],
-    //         'request' => [$request],
-    //         'route' => [$request->route()],
-    //         default => [],
-    //     };
-    // }
-
-    // /**
-    //  * @return array<int,mixed>
-    //  */
-    // public function resolveDefaultClosureDependencyForEvaluationByType(string $parameterType): array
-    // {
-    //     $request = request();
-
-    //     $parameters = $request->route()?->parameters() ?? [];
-
-    //     foreach ($parameters as $parameter) {
-    //         if ($parameter instanceof $parameterType) {
-    //             return [$parameter];
-    //         }
-    //     }
-
-    //     return match ($parameterType) {
-    //         Request::class => [$request],
-    //         Route::class => [$request->route()],
-    //         default => [],
-    //     };
-    // }
+    /**
+     * Determine if the given route is a uri.
+     */
+    public static function isUri(mixed $route): bool
+    {
+        return \is_string($route) && Str::startsWith($route, '/');
+    }
 }

@@ -19,7 +19,7 @@
     ],
     "require": {
         "php": "^8.2",
-        "honed/core": "^0.5.4",
+        "honed/core": "^0.6.0",
         "illuminate/contracts": "^11.0",
         "illuminate/support": "^11.0"
     },
@@ -82,6 +82,9 @@
     },
     "extra": {
         "laravel": {
+            "providers": [
+                "Honed\\Nav\\NavServiceProvider"
+            ],
             "aliases": {
                 "Nav": "Honed\\Nav\\Facades\\Nav"
             }

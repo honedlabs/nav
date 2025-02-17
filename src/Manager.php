@@ -4,120 +4,157 @@ declare(strict_types=1);
 
 namespace Honed\Nav;
 
+use Honed\Nav\Support\Parameters;
+use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Support\Arr;
 use Inertia\Inertia;
 
 class Manager
 {
-    const ShareProp = 'nav';
-
     /**
-     * @var array<string, array<int,\Honed\Nav\NavItem|\Honed\Nav\NavGroup>>
+     * Keyed navigation groups.
+     *
+     * @var array<string, array<int,\Honed\Nav\NavBase>>
      */
     protected $items = [];
 
     /**
-     * Configure a new navigation group.
+     * Set a navigation group under a given name.
      *
-     * @param  array<int,\Honed\Nav\NavItem|\Honed\Nav\NavGroup>  $items
+     * @param  array<int,\Honed\Nav\NavBase>  $items
      * @return $this
+     *
+     * @throws \InvalidArgumentException
      */
-    public function make(string $group, array $items): static
+    public function for(string $name, array $items): static
     {
-        $this->items[$group] = $items;
+        if ($this->hasGroup($name)) {
+            static::throwDuplicateGroupException($name);
+        }
+
+        /** @var array<int,\Honed\Nav\NavBase> $items */
+        Arr::set($this->items, $name, $items);
 
         return $this;
     }
 
     /**
-     * Append a navigation item to the provided group.
+     * Add navigation items to an existing group.
      *
-     * @param  array<int,\Honed\Nav\NavItem|\Honed\Nav\NavGroup>  $items
+     * @param  array<int,\Honed\Nav\NavBase>  $items
      * @return $this
      */
-    public function add(string $group, array $items): static
+    public function add(string $name, array $items): static
     {
-        \array_push($this->items[$group], ...$items);
+        if (! $this->hasGroup($name)) {
+            static::throwMissingGroupException($name);
+        }
+
+        /** @var array<int,\Honed\Nav\NavBase> $current */
+        $current = Arr::get($this->items, $name);
+
+        /** @var array<int,\Honed\Nav\NavBase> $items */
+        $updated = \array_merge($current, $items);
+
+        Arr::set($this->items, $name, $updated);
 
         return $this;
     }
 
     /**
-     * Retrieve the navigation item and groups associated with the provided group(s).
+     * Determine if the group(s) exists.
+     * 
+     * @param string|array<int,string> $groups
+     */
+    public function hasGroup(string|array $groups): bool
+    {
+        if (\is_array($groups) && ! \count($groups)) {
+            return true;
+        }
+
+        return Arr::has($this->items, $groups);
+    }
+
+    /**
+     * Retrieve navigation groups and their allowed items.
      *
-     * @param  string  ...$groups
+     * @param string|array<int,string> $groups
      * @return array<int|string,mixed>
      */
     public function get(...$groups): array
     {
-        return match (\count($groups)) {
-            0 => \array_combine(
-                \array_keys($this->items),
-                \array_map(
-                    fn ($group) => $this->getAllowedItems($group),
-                    \array_keys($this->items)
-                )
-            ),
-            1 => $this->getAllowedItems($groups[0]),
-            default => \array_combine(
-                \array_keys(\array_filter(
-                    $this->items,
-                    fn ($key) => \in_array($key, $groups),
-                    \ARRAY_FILTER_USE_KEY
-                )),
-                \array_map(
-                    fn ($group) => $this->getAllowedItems($group),
-                    \array_filter(
-                        \array_keys($this->items),
-                        fn ($key) => \in_array($key, $groups)
-                    )
-                )
-            ),
-        };
-    }
+        $groups = Arr::flatten($groups);
 
-    /**
-     * Retrieve the navigation items associated with the provided group.
-     *
-     * @return array<\Honed\Nav\NavItem|\Honed\Nav\NavGroup>
-     */
-    public function group(string $group)
-    {
-        return $this->items[$group] ?? [];
-    }
+        if (! $this->hasGroup($groups)) {
+            static::throwMissingGroupException(implode(', ', $groups));
+        }
 
-    /**
-     * Determine if all provided group(s) are defined.
-     *
-     * @param  string  ...$groups
-     */
-    public function hasGroups(...$groups): bool
-    {
-        return \count(\array_intersect($groups, \array_keys($this->items))) === \count($groups);
-    }
+        if (\count($groups) === 1) {
+            return $this->getGroup($groups[0]);
+        }
 
-    /**
-     * @return array<\Honed\Nav\NavItem|\Honed\Nav\NavGroup>
-     */
-    public function getAllowedItems(string $group): array
-    {
-        return \array_filter(
-            $this->items[$group],
-            fn (NavItem|NavGroup $nav) => $nav->isAllowed(),
+        $keys = empty($groups) ? \array_keys($this->items) : $groups;
+
+        return \array_reduce(
+            $keys,
+            fn (array $acc, string $key) => $acc + [$key => $this->getGroup($key)],
+            []
         );
     }
 
     /**
-     * Share the navigation items via Inertia.
+     * Retrieve the navigation group for the given name.
      *
-     * @param  string  ...$groups
+     * @return array<int,\Honed\Nav\NavBase>
+     */
+    public function getGroup(string $group): array
+    {
+        /** @var array<int,\Honed\Nav\NavBase> */
+        $items = Arr::get($this->items, $group);
+
+        return \array_values(
+            \array_filter($items, 
+                fn (NavBase $item) => $item->isAllowed()
+            )
+        );
+    }
+
+    /**
+     * Share the navigation items with Inertia.
+     * 
+     * @param string|array<int,string> $groups
+     *
      * @return $this
      */
     public function share(...$groups): static
     {
-        Inertia::share([
-            self::ShareProp => $this->get(...$groups),
-        ]);
+        $groups = $this->get(...$groups);
+
+
+        Inertia::share(Parameters::Prop, $groups);
 
         return $this;
+    }
+
+    /**
+     * Throw an exception for a duplicate group.
+     */
+    protected static function throwDuplicateGroupException(string $group): never
+    {
+        throw new \InvalidArgumentException(
+            \sprintf('There already exists a group with the name [%s].',
+                $group
+            ));
+    }
+
+    /**
+     * Throw an exception for a missing group.
+     */
+    protected static function throwMissingGroupException(string $group): never
+    {
+        throw new \InvalidArgumentException(
+            \sprintf('There is no group with the name [%s].',
+                $group
+            ));
     }
 }

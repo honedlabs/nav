@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Honed\Nav;
 
+use Illuminate\Support\Arr;
+
 class NavGroup extends NavBase
 {
     use Concerns\HasItems;

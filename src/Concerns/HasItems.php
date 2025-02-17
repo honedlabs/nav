@@ -19,15 +19,11 @@ trait HasItems
     /**
      * Set the navigation items.
      *
-     * @param  iterable<\Honed\Nav\NavBase>  $items
+     * @param  array<int,\Honed\Nav\NavBase>  $items
      * @return $this
      */
-    public function items(iterable $items): static
+    public function items(array $items): static
     {
-        if ($items instanceof Arrayable) {
-            $items = $items->toArray();
-        }
-
         /** @var array<int,\Honed\Nav\NavBase> $items */
         $this->items = $items;
 
@@ -35,7 +31,7 @@ trait HasItems
     }
 
     /**
-     * Append a navigation item to list of items.
+     * Append a navigation item to the list of items.
      *
      * @return $this
      */
@@ -82,7 +78,7 @@ trait HasItems
     {
         return \array_map(
             static fn (NavBase $item) => $item->toArray(),
-            $this->items,
+            $this->getItems(),
         );
     }
 }
