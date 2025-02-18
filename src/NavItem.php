@@ -19,8 +19,11 @@ class NavItem extends NavBase
     /**
      * Create a new nav item instance.
      */
-    public static function make(string $label, string|\Closure|null $route = null, mixed $parameters = []): static
-    {
+    public static function make(
+        string $label,
+        string|\Closure|null $route = null,
+        mixed $parameters = [],
+    ): static {
         return resolve(static::class)
             ->label($label)
             ->when(static::isUri($route),

@@ -6,7 +6,6 @@ use Honed\Nav\Manager;
 use Honed\Nav\NavItem;
 use Honed\Nav\NavGroup;
 use Honed\Nav\Facades\Nav;
-use Illuminate\Support\Arr;
 
 beforeEach(function () {
     $this->product = product();

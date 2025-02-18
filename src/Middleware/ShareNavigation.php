@@ -17,7 +17,7 @@ class ShareNavigation
      */
     public function handle(Request $request, Closure $next, string ...$groups)
     {
-        Nav::share($groups);
+        Nav::share(...$groups);
 
         return $next($request);
     }
