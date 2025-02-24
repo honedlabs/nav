@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace Honed\Nav;
 
-use Honed\Core\Concerns\Allowable;
-use Honed\Core\Concerns\HasIcon;
-use Honed\Core\Concerns\HasLabel;
-use Honed\Core\Concerns\HasRequest;
 use Honed\Core\Primitive;
 use Illuminate\Http\Request;
+use Honed\Core\Concerns\HasIcon;
+use Honed\Core\Concerns\HasLabel;
+use Honed\Core\Concerns\Allowable;
+use Honed\Core\Concerns\HasRequest;
+use Illuminate\Support\Facades\App;
+use Illuminate\Auth\Authenticatable;
+use Illuminate\Foundation\Auth\User;
 
 /**
  * @extends Primitive<string, mixed>
@@ -42,7 +45,7 @@ abstract class NavBase extends Primitive
      */
     public function resolveDefaultClosureDependencyForEvaluationByName(string $parameterName): array
     {
-        $this->request = request();
+        $this->request = App::make(Request::class);
 
         return $this->resolveRequestClosureDependencyForEvaluationByName($parameterName);
     }
@@ -52,7 +55,7 @@ abstract class NavBase extends Primitive
      */
     public function resolveDefaultClosureDependencyForEvaluationByType(string $parameterType): array
     {
-        $this->request = request();
+        $this->request = App::make(Request::class);
 
         return $this->resolveRequestClosureDependencyForEvaluationByType($parameterType);
     }

@@ -21,7 +21,7 @@ class NavItem extends NavBase
      */
     public static function make(
         string $label,
-        string|\Closure|null $route = null,
+        string|\Closure $route = null,
         mixed $parameters = [],
     ): static {
         return resolve(static::class)
