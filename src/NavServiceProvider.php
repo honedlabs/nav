@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Honed\Nav;
 
 use Illuminate\Routing\Events\Routing;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\Event;
 
 final class NavServiceProvider extends ServiceProvider
 {

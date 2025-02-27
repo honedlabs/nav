@@ -32,7 +32,6 @@ trait HasItems
     /**
      * Append a navigation item to the list of items.
      *
-     * @param  \Honed\Nav\NavBase  $item
      * @return $this
      */
     public function addItem(NavBase $item)
@@ -63,7 +62,7 @@ trait HasItems
 
     /**
      * Determine if the instance has any navigation items.
-     * 
+     *
      * @return bool
      */
     public function hasItems()

@@ -68,7 +68,7 @@ class TestCase extends Orchestra
                 $router->get('/contact', fn () => inertia('Contact'));
                 $router->get('/dashboard', fn () => inertia('Dashboard'));
             }
-        );
+            );
     }
 
     protected function getEnvironmentSetUp($app)

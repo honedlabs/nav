@@ -102,8 +102,8 @@ class Manager
 
     /**
      * Retrieve the navigation groups for the given keys.
-     * 
-     * @param array<int,string> $keys
+     *
+     * @param  array<int,string>  $keys
      * @return array<int,array<int,\Honed\Nav\NavBase>>
      */
     protected function getGroups($keys)
@@ -150,7 +150,7 @@ class Manager
 
     /**
      * Throw an exception for a duplicate group.
-     * 
+     *
      * @param  string  $group
      * @return never
      */
@@ -164,7 +164,7 @@ class Manager
 
     /**
      * Throw an exception for a missing group.
-     * 
+     *
      * @param  string  $group
      * @return never
      */
