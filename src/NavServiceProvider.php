@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace Honed\Nav;
 
+use Illuminate\Routing\Events\Routing;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Event;
 
-class NavServiceProvider extends ServiceProvider
+final class NavServiceProvider extends ServiceProvider
 {
     /**
      * Register services.
@@ -18,7 +20,6 @@ class NavServiceProvider extends ServiceProvider
             __DIR__.'/../config/nav.php', 'nav');
 
         $this->registerMiddleware();
-
     }
 
     /**
@@ -28,10 +29,11 @@ class NavServiceProvider extends ServiceProvider
     {
         $this->publishes([
             __DIR__.'/../config/nav.php' => config_path('nav.php'),
-        ], 'nav-config');
+        ], 'config');
 
-        // Load the files containing navs
-        $this->registerNavigation();
+        Event::listen(Routing::class, function () {
+            $this->registerNavigation();
+        });
     }
 
     /**

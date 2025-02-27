@@ -21,7 +21,7 @@ trait HasItems
      * @param  array<int,\Honed\Nav\NavBase>  $items
      * @return $this
      */
-    public function items(array $items): static
+    public function items($items)
     {
         /** @var array<int,\Honed\Nav\NavBase> $items */
         $this->items = $items;
@@ -32,9 +32,10 @@ trait HasItems
     /**
      * Append a navigation item to the list of items.
      *
+     * @param  \Honed\Nav\NavBase  $item
      * @return $this
      */
-    public function addItem(NavBase $item): static
+    public function addItem(NavBase $item)
     {
         if (! $this->items) {
             $this->items = [];
@@ -50,7 +51,7 @@ trait HasItems
      *
      * @return array<int,\Honed\Nav\NavBase>
      */
-    public function getItems(): array
+    public function getItems()
     {
         return \array_values(
             \array_filter(
@@ -62,8 +63,10 @@ trait HasItems
 
     /**
      * Determine if the instance has any navigation items.
+     * 
+     * @return bool
      */
-    public function hasItems(): bool
+    public function hasItems()
     {
         return filled($this->items);
     }
@@ -73,7 +76,7 @@ trait HasItems
      *
      * @return array<int,mixed>
      */
-    public function itemsToArray(): array
+    public function itemsToArray()
     {
         return \array_map(
             static fn (NavBase $item) => $item->toArray(),

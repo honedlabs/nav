@@ -32,15 +32,6 @@ class TestCase extends Orchestra
         config()->set('inertia.testing.page_paths', [realpath(__DIR__)]);
     }
 
-    protected function resolveApplicationConfiguration($app)
-    {
-        parent::resolveApplicationConfiguration($app);
-
-        // Fix to prevent missing names in testing
-        $this->defineRoutes($app['router']);
-        config()->set('nav.files', realpath(__DIR__).'/Fixtures/nav.php');
-    }
-
     protected function getPackageProviders($app)
     {
         return [
@@ -65,25 +56,23 @@ class TestCase extends Orchestra
 
     protected function defineRoutes($router)
     {
-        $router->middleware([
-            HandlesInertiaRequests::class,
-            SubstituteBindings::class,
-        ])->group(function (Router $router) {
+        $router->middleware([HandlesInertiaRequests::class, SubstituteBindings::class])
+            ->group(function (Router $router) {
+                $router->middleware('nav:primary')
+                    ->get('/', fn () => inertia('Home'));
 
-            $router->middleware('nav:primary')
-                ->get('/', fn () => inertia('Home'));
+                $router->middleware('nav:primary,products')
+                    ->resource('products', ProductController::class);
 
-            $router->middleware('nav:primary,products')
-                ->resource('products', ProductController::class);
-
-            $router->get('/about', fn () => inertia('About'));
-            $router->get('/contact', fn () => inertia('Contact'));
-            $router->get('/dashboard', fn () => inertia('Dashboard'));
-        });
+                $router->get('/about', fn () => inertia('About'));
+                $router->get('/contact', fn () => inertia('Contact'));
+                $router->get('/dashboard', fn () => inertia('Dashboard'));
+            }
+        );
     }
 
-    // protected function getEnvironmentSetUp($app)
-    // {
-    //     $app['config']->set('nav.files', realpath(__DIR__).'/Fixtures/nav.php');
-    // }
+    protected function getEnvironmentSetUp($app)
+    {
+        config()->set('nav.files', realpath(__DIR__).'/Fixtures/nav.php');
+    }
 }

@@ -20,12 +20,13 @@ class Manager
     /**
      * Set a navigation group under a given name.
      *
+     * @param  string  $name
      * @param  array<int,\Honed\Nav\NavBase>  $items
      * @return $this
      *
      * @throws \InvalidArgumentException
      */
-    public function for(string $name, array $items): static
+    public function for($name, $items)
     {
         if ($this->hasGroup($name)) {
             static::throwDuplicateGroupException($name);
@@ -40,10 +41,11 @@ class Manager
     /**
      * Add navigation items to an existing group.
      *
+     * @param  string  $name
      * @param  array<int,\Honed\Nav\NavBase>  $items
      * @return $this
      */
-    public function add(string $name, array $items): static
+    public function add($name, $items)
     {
         if (! $this->hasGroup($name)) {
             static::throwMissingGroupException($name);
@@ -64,8 +66,9 @@ class Manager
      * Determine if the group(s) exists.
      *
      * @param  string|array<int,string>  $groups
+     * @return bool
      */
-    public function hasGroup(string|array $groups): bool
+    public function hasGroup($groups)
     {
         if (\is_array($groups) && ! \count($groups)) {
             return true;
@@ -80,7 +83,7 @@ class Manager
      * @param  string|array<int,string>  $groups
      * @return array<int|string,mixed>
      */
-    public function get(...$groups): array
+    public function get(...$groups)
     {
         $groups = Arr::flatten($groups);
 
@@ -94,6 +97,17 @@ class Manager
 
         $keys = empty($groups) ? \array_keys($this->items) : $groups;
 
+        return $this->getGroups($keys);
+    }
+
+    /**
+     * Retrieve the navigation groups for the given keys.
+     * 
+     * @param array<int,string> $keys
+     * @return array<int,array<int,\Honed\Nav\NavBase>>
+     */
+    protected function getGroups($keys)
+    {
         return \array_reduce(
             $keys,
             fn (array $acc, string $key) => $acc + [$key => $this->getGroup($key)],
@@ -104,9 +118,10 @@ class Manager
     /**
      * Retrieve the navigation group for the given name.
      *
+     * @param  string  $group
      * @return array<int,\Honed\Nav\NavBase>
      */
-    public function getGroup(string $group): array
+    public function getGroup($group)
     {
         /** @var array<int,\Honed\Nav\NavBase> */
         $items = Arr::get($this->items, $group);
@@ -124,7 +139,7 @@ class Manager
      * @param  string|array<int,string>  $groups
      * @return $this
      */
-    public function share(...$groups): static
+    public function share(...$groups)
     {
         $groups = $this->get(...$groups);
 
@@ -135,8 +150,11 @@ class Manager
 
     /**
      * Throw an exception for a duplicate group.
+     * 
+     * @param  string  $group
+     * @return never
      */
-    protected static function throwDuplicateGroupException(string $group): never
+    protected static function throwDuplicateGroupException($group)
     {
         throw new \InvalidArgumentException(
             \sprintf('There already exists a group with the name [%s].',
@@ -146,8 +164,11 @@ class Manager
 
     /**
      * Throw an exception for a missing group.
+     * 
+     * @param  string  $group
+     * @return never
      */
-    protected static function throwMissingGroupException(string $group): never
+    protected static function throwMissingGroupException($group)
     {
         throw new \InvalidArgumentException(
             \sprintf('There is no group with the name [%s].',

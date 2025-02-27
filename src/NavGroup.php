@@ -11,9 +11,11 @@ class NavGroup extends NavBase
     /**
      * Create a new nav group instance.
      *
+     * @param  string  $label
      * @param  array<int,\Honed\Nav\NavBase>  $items
+     * @return static
      */
-    public static function make(string $label, array $items = []): static
+    public static function make($label, $items = [])
     {
         return resolve(static::class)
             ->label($label)

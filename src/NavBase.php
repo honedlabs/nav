@@ -22,11 +22,6 @@ abstract class NavBase extends Primitive
     use HasLabel;
     use HasRequest;
 
-    public function __construct(Request $request)
-    {
-        $this->request($request);
-    }
-
     /**
      * {@inheritDoc}
      */

@@ -18,12 +18,14 @@ class NavItem extends NavBase
 
     /**
      * Create a new nav item instance.
+     * 
+     * @param  string  $label
+     * @param  string|\Closure|null  $route
+     * @param  array<string,mixed>  $parameters
+     * @return static
      */
-    public static function make(
-        string $label,
-        string|\Closure|null $route = null,
-        mixed $parameters = [],
-    ): static {
+    public static function make($label, $route = null, $parameters = [])
+    {
         return resolve(static::class)
             ->label($label)
             ->when(static::isUri($route),
@@ -46,9 +48,10 @@ class NavItem extends NavBase
     /**
      * Set the condition for this nav item to be considered active.
      *
+     * @param  string|\Closure|null  $condition
      * @return $this
      */
-    public function active(string|\Closure|null $condition): static
+    public function active($condition)
     {
         if (! \is_null($condition)) {
             $this->active = $condition;
@@ -59,8 +62,10 @@ class NavItem extends NavBase
 
     /**
      * Determine if this nav item is active.
+     * 
+     * @return bool
      */
-    public function isActive(): bool
+    public function isActive()
     {
         $request = request();
         $route = $this->resolveRoute();
@@ -74,8 +79,11 @@ class NavItem extends NavBase
 
     /**
      * Determine if the given route is a uri.
+     * 
+     * @param  mixed  $route
+     * @return bool
      */
-    public static function isUri(mixed $route): bool
+    public static function isUri($route)
     {
         return \is_string($route) && Str::startsWith($route, '/');
     }
