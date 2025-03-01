@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Honed\Nav;
 
-use Illuminate\Routing\Events\Routing;
+use Illuminate\Routing\Events\RouteMatched;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
@@ -31,7 +31,7 @@ final class NavServiceProvider extends ServiceProvider
             __DIR__.'/../config/nav.php' => config_path('nav.php'),
         ], 'config');
 
-        Event::listen(Routing::class, function () {
+        Event::listen(RouteMatched::class, function () {
             $this->registerNavigation();
         });
     }

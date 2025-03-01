@@ -10,20 +10,20 @@ use Illuminate\Support\Facades\Request;
 
 it('shares a single group', function () {
     get('/')->assertInertia(fn (Assert $page) => $page
-        ->has(Parameters::Prop, 3)
-        ->where(Parameters::Prop.'.0', [
+        ->has(Parameters::Prop, 1)
+        ->where(Parameters::Prop.'.primary.0', [
             'label' => 'Home',
             'href' => url('/'),
             'active' => true,
             'icon' => null,
         ])
-        ->where(Parameters::Prop.'.1', [
+        ->where(Parameters::Prop.'.primary.1', [
             'label' => 'About',
             'href' => url('/about'),
             'active' => false,
             'icon' => null,
         ])
-        ->where(Parameters::Prop.'.2', [
+        ->where(Parameters::Prop.'.primary.2', [
             'label' => 'Contact',
             'href' => url('/contact'),
             'active' => false,

@@ -25,7 +25,7 @@ class NavGroup extends NavBase
     /**
      * {@inheritDoc}
      */
-    public function toArray(): array
+    public function toArray()
     {
         return \array_merge(parent::toArray(), [
             'items' => $this->itemsToArray(),

@@ -10,6 +10,8 @@ use Honed\Core\Concerns\HasLabel;
 use Honed\Core\Concerns\HasRequest;
 use Honed\Core\Primitive;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Route;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\App;
 
 /**
@@ -22,10 +24,15 @@ abstract class NavBase extends Primitive
     use HasLabel;
     use HasRequest;
 
+    public function __construct(Request $request)
+    {
+        $this->request($request);
+    }
+
     /**
      * {@inheritDoc}
      */
-    public function toArray(): array
+    public function toArray()
     {
         return [
             'label' => $this->getLabel(),
@@ -36,20 +43,50 @@ abstract class NavBase extends Primitive
     /**
      * {@inheritDoc}
      */
-    public function resolveDefaultClosureDependencyForEvaluationByName(string $parameterName): array
+    public function resolveDefaultClosureDependencyForEvaluationByName($parameterName)
     {
-        $this->request = App::make(Request::class);
+        $request = $this->getRequest();
 
-        return $this->resolveRequestClosureDependencyForEvaluationByName($parameterName);
+        $parameters = Arr::mapWithKeys(
+            $request->route()?->parameters() ?? [],
+            static fn ($value, $key) => [$key => [$value]],
+        );
+
+        /** @var array<int,mixed> */
+        return match ($parameterName) {
+            'request' => [$request],
+            'route' => [$request->route()],
+            default => Arr::get(
+                $parameters,
+                $parameterName,
+                parent::resolveDefaultClosureDependencyForEvaluationByName($parameterName),
+            ),
+        };
     }
 
     /**
      * {@inheritDoc}
      */
-    public function resolveDefaultClosureDependencyForEvaluationByType(string $parameterType): array
+    public function resolveDefaultClosureDependencyForEvaluationByType($parameterType)
     {
-        $this->request = App::make(Request::class);
+        $request = $this->getRequest();
 
-        return $this->resolveRequestClosureDependencyForEvaluationByType($parameterType);
+        $parameters = Arr::mapWithKeys(
+            $request->route()?->parameters() ?? [],
+            static fn ($value) => \is_object($value)
+                ? [\get_class($value) => [$value]]
+                : [],
+        );
+
+        /** @var array<int,mixed> */
+        return match ($parameterType) {
+            Request::class => [$request],
+            Route::class => [$request->route()],
+            default => Arr::get(
+                $parameters,
+                $parameterType,
+                fn () => App::make($parameterType),
+            ),
+        };
     }
 }

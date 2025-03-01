@@ -30,7 +30,9 @@ it('sets active state', function (string|\Closure|null $condition, bool $expecte
     $product = product();
 
     get(route('products.show', $product));
-    $item = NavItem::make($this->label, 'products.show', $product)->active($condition);
+
+    $item = NavItem::make($this->label, 'products.show', $product)
+        ->active($condition);
 
     expect($item)->toBeInstanceOf(NavItem::class)
         ->isActive()->toBe($expected)
@@ -43,7 +45,7 @@ it('sets active state', function (string|\Closure|null $condition, bool $expecte
 })->with([
     'other route' => ['status.*', false],
     'all' => ['*', true],
-    'item route' => [null, true], // should be true as we retrieve the same route as active
+    'item route' => [null, true],
     'wildcard' => ['products.*', true],
     'typed parameter product' => fn () => [fn (Product $p) => request()->url() === route('products.show', $p), true],
     'named parameter product' => fn () => [fn ($product) => request()->url() === route('products.show', $product), true],

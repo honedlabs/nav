@@ -12,6 +12,8 @@ class NavItem extends NavBase
     use HasRoute;
 
     /**
+     * Condition for this nav item to be considered active.
+     *
      * @var string|\Closure|null
      */
     protected $active;
@@ -37,7 +39,7 @@ class NavItem extends NavBase
     /**
      * {@inheritDoc}
      */
-    public function toArray(): array
+    public function toArray()
     {
         return \array_merge(parent::toArray(), [
             'href' => $this->getRoute(),
@@ -67,7 +69,7 @@ class NavItem extends NavBase
      */
     public function isActive()
     {
-        $request = request();
+        $request = $this->getRequest();
         $route = $this->resolveRoute();
 
         return (bool) match (true) {
