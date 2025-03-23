@@ -14,9 +14,6 @@ use Illuminate\Routing\Route;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\App;
 
-/**
- * @extends Primitive<string, mixed>
- */
 abstract class NavBase extends Primitive
 {
     use Allowable;
