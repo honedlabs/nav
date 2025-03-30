@@ -7,7 +7,7 @@ use Illuminate\Support\Arr;
 
 if (! \function_exists('nav')) {
     /**
-     * Nav facade accessor
+     * Access the navigation factory.
      *
      * @param  string|null  $group
      * @param  \Honed\Nav\NavBase|iterable<int,\Honed\Nav\NavBase>  ...$items
