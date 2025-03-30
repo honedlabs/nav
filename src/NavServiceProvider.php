@@ -27,9 +27,11 @@ final class NavServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        $this->publishes([
-            __DIR__.'/../config/nav.php' => config_path('nav.php'),
-        ], 'config');
+        if ($this->app->runningInConsole()) {
+            $this->publishes([
+                __DIR__.'/../config/nav.php' => config_path('nav.php'),
+            ], 'config');
+        }
 
         Event::listen(RouteMatched::class, function () {
             $this->registerNavigation();

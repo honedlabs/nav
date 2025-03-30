@@ -20,7 +20,7 @@ it('makes', function () {
         ->getRoute()->toBe(route('products.index'))
         ->toArray()->toEqual([
             'label' => $this->label,
-            'href' => route('products.index'),
+            'url' => route('products.index'),
             'active' => true,
             'icon' => null,
         ]);
@@ -38,7 +38,7 @@ it('sets active state', function (string|\Closure|null $condition, bool $expecte
         ->isActive()->toBe($expected)
         ->toArray()->toEqual([
             'label' => $this->label,
-            'href' => route('products.show', $product),
+            'url' => route('products.show', $product),
             'active' => $expected,
             'icon' => null,
         ]);

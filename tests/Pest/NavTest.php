@@ -2,11 +2,9 @@
 
 declare(strict_types=1);
 
-use Honed\Nav\Nav as NavManager;
+use Honed\Nav\NavFactory;
 use Honed\Nav\NavItem;
-use Honed\Nav\NavGroup;
 use Honed\Nav\Facades\Nav;
-use Illuminate\Support\Arr;
 
 use function Pest\Laravel\get;
 
@@ -22,9 +20,9 @@ beforeEach(function () {
 it('defines a new group', function () {
     expect(Nav::for('example', [
         NavItem::make('Index', 'products.index')
-    ]))->toBeInstanceOf(NavManager::class);
+    ]))->toBeInstanceOf(NavFactory::class);
 
-    expect(Nav::getGroup('example'))
+    expect(Nav::group('example'))
         ->toBeArray()
         ->toHaveCount(1);
 });
@@ -38,25 +36,19 @@ it('throws error when defining a group that already exists', function () {
 it('adds items to an existing group', function () {
     expect(Nav::add('menu', [
         NavItem::make('Index', 'products.index')
-    ]))->toBeInstanceOf(NavManager::class);
+    ]))->toBeInstanceOf(NavFactory::class);
 
-    expect(Nav::getGroup('menu'))
+    expect(Nav::group('menu'))
         ->toBeArray()
         ->toHaveCount(2); // Nav has a disallowed route
 });
 
-it('throws error when adding to a non-existent group', function () {
-    Nav::add('fake', [
-        NavItem::make('Index', 'products.index')
-    ]);
-})->throws(\InvalidArgumentException::class);
-
 it('checks if a group exists', function () {
-    expect(Nav::hasGroup('primary'))->toBeTrue();
-    expect(Nav::hasGroup('fake'))->toBeFalse();
+    expect(Nav::has('primary'))->toBeTrue();
+    expect(Nav::has('fake'))->toBeFalse();
 });
 
-it('can retrieve a single group', function () {
+it('retrieves a group', function () {
     expect(Nav::get('primary'))
         ->toBeArray()
         ->toHaveCount(1)
@@ -64,7 +56,7 @@ it('can retrieve a single group', function () {
         ->{'primary'}->toHaveCount(3);
 });
 
-it('can retrieve all groups', function () {
+it('retrieves all groups', function () {
     expect(Nav::get())
         ->toBeArray()
         ->toHaveCount(3)
@@ -74,7 +66,7 @@ it('can retrieve all groups', function () {
         ->{'products'}->toHaveCount(1);
 });
 
-it('can retrieve multiple groups', function () {
+it('retrieves select groups', function () {
     Nav::for('example', [
         NavItem::make('Index', 'products.index')
     ]);
@@ -85,7 +77,12 @@ it('can retrieve multiple groups', function () {
         ->toHaveKeys(['primary', 'example']);
 });
 
-it('can share the navigation', function () {
-    expect(Nav::share('primary', 'menu'))
-        ->toBeInstanceOf(NavManager::class);
-});
+it('cannot add to a non-existent group', function () {
+    Nav::add('fake', [
+        NavItem::make('Index', 'products.index')
+    ]);
+})->throws(\InvalidArgumentException::class);
+
+it('cannot get a non-existent group', function () {
+    Nav::get('fake');
+})->throws(\InvalidArgumentException::class);

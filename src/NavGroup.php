@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Honed\Nav;
 
+use Honed\Nav\Concerns\HasItems;
+
 class NavGroup extends NavBase
 {
-    use Concerns\HasItems;
+    use HasItems;
 
     /**
      * Create a new nav group instance.

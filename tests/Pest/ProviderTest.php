@@ -10,5 +10,3 @@ it('publishes config', function () {
 
     expect(file_exists(base_path('config/nav.php')))->toBeTrue();
 });
-
-

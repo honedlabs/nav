@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace Honed\Nav;
 
-use Honed\Nav\Support\Parameters;
 use Illuminate\Support\Arr;
-use Inertia\Inertia;
 
-class Nav
+class NavFactory
 {
     /**
      * Keyed navigation groups.
@@ -16,6 +14,13 @@ class Nav
      * @var array<string, array<int,\Honed\Nav\NavBase>>
      */
     protected $items = [];
+
+    /**
+     * The keys to retrieve for sharing.
+     *
+     * @var array<int,string>
+     */
+    protected $share = [];
 
     /**
      * Set a navigation group under a given name.
@@ -28,7 +33,7 @@ class Nav
      */
     public function for($name, $items)
     {
-        if ($this->hasGroup($name)) {
+        if ($this->has($name)) {
             static::throwDuplicateGroupException($name);
         }
 
@@ -47,7 +52,7 @@ class Nav
      */
     public function add($name, $items)
     {
-        if (! $this->hasGroup($name)) {
+        if (! $this->has($name)) {
             static::throwMissingGroupException($name);
         }
 
@@ -65,42 +70,38 @@ class Nav
     /**
      * Determine if one or more navigation groups exist.
      *
-     * @param  string|array<int,string>  $groups
+     * @param  string|iterable<int,string>  ...$groups
      * @return bool
      */
-    public function hasGroup($groups)
+    public function has(...$groups)
     {
-        $groups = Arr::wrap($groups);
+        /** @var array<int,string> $groups */
+        $groups = Arr::flatten($groups);
 
-        if (empty($groups)) {
-            return true;
-        }
-
-        return empty(
-            \array_diff(
-                $groups,
-                \array_keys($this->items)
-            )
-        );
+        return match (true) {
+            empty($groups) => ! empty($this->items),
+            default => empty(array_diff($groups, array_keys($this->items))),
+        };
     }
 
     /**
      * Retrieve navigation groups and their allowed items.
      *
-     * @param  string|array<int,string>  $groups
+     * @param  string|iterable<int,string>  ...$groups
      * @return array<string,array<int,\Honed\Nav\NavBase>>
      */
     public function get(...$groups)
     {
+        /** @var array<int,string> $groups */
         $groups = Arr::flatten($groups);
 
-        if (! $this->hasGroup($groups)) {
+        if (! $this->has($groups)) {
             static::throwMissingGroupException(implode(', ', $groups));
         }
 
         $keys = empty($groups) ? \array_keys($this->items) : $groups;
 
-        return $this->getGroups($keys);
+        return $this->groups($keys);
     }
 
     /**
@@ -109,11 +110,11 @@ class Nav
      * @param  array<int,string>  $keys
      * @return array<string,array<int,\Honed\Nav\NavBase>>
      */
-    protected function getGroups($keys)
+    public function groups($keys)
     {
         return \array_reduce(
             $keys,
-            fn (array $acc, string $key) => $acc + [$key => $this->getGroup($key)],
+            fn (array $acc, string $key) => $acc + [$key => $this->group($key)],
             []
         );
     }
@@ -124,7 +125,7 @@ class Nav
      * @param  string  $group
      * @return array<int,\Honed\Nav\NavBase>
      */
-    public function getGroup($group)
+    public function group($group)
     {
         /** @var array<int,\Honed\Nav\NavBase> */
         $items = Arr::get($this->items, $group);
@@ -137,38 +138,47 @@ class Nav
     }
 
     /**
-     * Get the navigation items as an array.
+     * Add groups to the share list.
      *
-     * @param  string|array<int,string>  $groups
+     * @param  string|iterable<int,string>  ...$groups
+     * @return $this
+     */
+    public function with(...$groups)
+    {
+        $share = Arr::flatten($groups);
+
+        $this->share = \array_merge($this->share, $share);
+
+        return $this;
+    }
+
+    /**
+     * Get the shared navigation items.
+     *
      * @return array<string,array<int,array<string,mixed>>>
      */
-    public function getToArray(...$groups)
+    public function shared()
+    {
+        return $this->toArray($this->share);
+    }
+
+    /**
+     * Get the navigation items as an array.
+     *
+     * @param  string|iterable<int,string>  ...$groups
+     * @return array<string,array<int,array<string,mixed>>>
+     */
+    public function toArray(...$groups)
     {
         $groups = $this->get(...$groups);
 
         return \array_map(
-            fn ($group) => \array_map(
-                fn (NavBase $item) => $item->toArray(),
+            static fn ($group) => \array_map(
+                static fn (NavBase $item) => $item->toArray(),
                 $group
             ),
             $groups
         );
-    }
-
-    /**
-     * Share the navigation items with Inertia.
-     *
-     * @param  string|array<int,string>  $groups
-     * @return $this
-     */
-    public function share(...$groups)
-    {
-        Inertia::share(
-            Parameters::Prop,
-            $this->getToArray(...$groups)
-        );
-
-        return $this;
     }
 
     /**
@@ -177,7 +187,7 @@ class Nav
      * @param  string  $group
      * @return never
      */
-    protected static function throwDuplicateGroupException($group)
+    public static function throwDuplicateGroupException($group)
     {
         throw new \InvalidArgumentException(
             \sprintf('There already exists a group with the name [%s].', $group)
@@ -190,7 +200,7 @@ class Nav
      * @param  string  $group
      * @return never
      */
-    protected static function throwMissingGroupException($group)
+    public static function throwMissingGroupException($group)
     {
         throw new \InvalidArgumentException(
             \sprintf('There is no group with the name [%s].', $group)

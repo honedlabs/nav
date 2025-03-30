@@ -6,45 +6,32 @@ use Honed\Nav\NavGroup;
 use Honed\Nav\NavItem;
 
 beforeEach(function () {
-    $this->label = 'Pages';
+    $this->group = NavGroup::make('Dashboard');
 });
 
-it('makes', function () {
-    expect(NavGroup::make($this->label))
-    ->toBeInstanceOf(NavGroup::class)
-        ->getLabel()->toBe($this->label)
+it('has array representation', function () {
+    expect($this->group)
         ->toArray()->toEqual([
-            'label' => $this->label,
-            'items' => [],
+            'label' => 'Dashboard',
             'icon' => null,
+            'items' => [],
         ]);
 });
 
-it('can have items', function () {
-    $group = NavGroup::make($this->label, [
-        NavItem::make('Home', 'products.index')->allow(true),
-        NavItem::make('Products', 'products.index')->allow(false),
-    ]);
-
-    expect($group->getItems())
-        ->toBeArray()->toHaveCount(1)
-        ->{0}->scoped(fn ($item) => $item
-            ->getLabel()->toBe('Home')
-            ->getRoute()->toBe(route('products.index'))
-        );
-});
-
-it('can add items', function () {
-    expect(NavGroup::make($this->label))
-        ->addItem(NavItem::make('Home', 'products.index'))->toBeInstanceOf(NavGroup::class)
-        ->getItems()->toHaveCount(1)
-        ->hasItems()->toBeTrue();
-});
-
-it('accepts array of items', function () {
-    expect(NavGroup::make($this->label, [
-        NavItem::make('Home', 'products.index'),
-        NavItem::make('Products', 'products.index'),
-    ]))->toBeInstanceOf(NavGroup::class)
-        ->getItems()->toHaveCount(2);
+it('has array representation with items', function () {
+    expect($this->group)
+        ->items([
+            NavItem::make('Home', 'products.index'),
+        ])->toArray()->toEqual([
+            'label' => 'Dashboard',
+            'icon' => null,
+            'items' => [
+                [
+                    'label' => 'Home',
+                    'icon' => null,
+                    'url' => route('products.index'),
+                    'active' => false,
+                ],
+            ],
+        ]);
 });

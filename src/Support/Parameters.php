@@ -6,5 +6,5 @@ namespace Honed\Nav\Support;
 
 class Parameters
 {
-    const Prop = 'nav';
+    const PROP = 'nav';
 }

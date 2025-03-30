@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Honed\Nav\Concerns;
 
 use Honed\Nav\NavBase;
+use Illuminate\Support\Arr;
 
 trait HasItems
 {
@@ -18,29 +19,15 @@ trait HasItems
     /**
      * Set the navigation items.
      *
-     * @param  array<int,\Honed\Nav\NavBase>  $items
+     * @param  \Honed\Nav\NavBase  ...$items
      * @return $this
      */
-    public function items($items)
+    public function items(...$items)
     {
         /** @var array<int,\Honed\Nav\NavBase> $items */
+        $items = Arr::flatten($items);
+
         $this->items = $items;
-
-        return $this;
-    }
-
-    /**
-     * Append a navigation item to the list of items.
-     *
-     * @return $this
-     */
-    public function addItem(NavBase $item)
-    {
-        if (! $this->items) {
-            $this->items = [];
-        }
-
-        $this->items[] = $item;
 
         return $this;
     }
@@ -58,16 +45,6 @@ trait HasItems
                 static fn (NavBase $item) => $item->isAllowed(),
             )
         );
-    }
-
-    /**
-     * Determine if the instance has any navigation items.
-     *
-     * @return bool
-     */
-    public function hasItems()
-    {
-        return filled($this->items);
     }
 
     /**
