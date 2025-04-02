@@ -20,9 +20,11 @@ class ShareNavigation
      */
     public function handle(Request $request, Closure $next, ...$groups)
     {
+        Nav::with(...$groups);
+
         Inertia::share(
             Parameters::PROP,
-            static fn () => Nav::with(...$groups)->shared(),
+            static fn () => Nav::shared(),
         );
 
         return $next($request);

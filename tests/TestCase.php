@@ -59,12 +59,18 @@ class TestCase extends Orchestra
         $router->middleware([HandlesInertiaRequests::class, SubstituteBindings::class])
             ->group(function (Router $router) {
                 $router->middleware('nav:primary')
-                    ->get('/', fn () => inertia('Home'));
+                    ->group(function (Router $router) {
+                        $router->get('/', fn () => inertia('Home'));
+
+                        $router->middleware('nav:products')
+                            ->get('/about', fn () => inertia('About'))
+                            ->name('about.show');
+                    }
+                );
 
                 $router->middleware('nav:primary,products')
                     ->resource('products', ProductController::class);
 
-                $router->get('/about', fn () => inertia('About'));
                 $router->get('/contact', fn () => inertia('Contact'));
                 $router->get('/dashboard', fn () => inertia('Dashboard'));
             }
