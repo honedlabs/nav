@@ -66,7 +66,7 @@ class TestCase extends Orchestra
                             ->get('/about', fn () => inertia('About'))
                             ->name('about.show');
                     }
-                    );
+                );
 
                 $router->middleware('nav:primary,products')
                     ->resource('products', ProductController::class);
