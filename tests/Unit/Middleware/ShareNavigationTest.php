@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Honed\Nav\Support\Parameters;
+use Honed\Nav\Support\Constants;
 use Inertia\Testing\AssertableInertia as Assert;
 use Illuminate\Support\Facades\Request;
 
@@ -10,7 +10,7 @@ use function Pest\Laravel\get;
 
 it('shares one group', function () {
     get('/')->assertInertia(fn (Assert $page) => $page
-        ->has(Parameters::PROP, fn (Assert $nav) => $nav
+        ->has(Constants::PROP, fn (Assert $nav) => $nav
             ->has('primary', fn (Assert $primary) => $primary
                 ->has(0, fn (Assert $item) => $item
                     ->where('label', 'Home')
@@ -37,7 +37,7 @@ it('shares one group', function () {
 
 it('shares groups', function () {
     get(route('products.index'))->assertInertia(fn (Assert $page) => $page
-        ->has(Parameters::PROP, fn (Assert $nav) => $nav
+        ->has(Constants::PROP, fn (Assert $nav) => $nav
             ->has('primary', fn (Assert $primary) => $primary
                 ->has(0, fn (Assert $item) => $item
                     ->where('label', 'Home')
@@ -78,7 +78,7 @@ it('shares groups', function () {
 
 it('shares with nesting', function () {
     get(route('about.show'))->assertInertia(fn (Assert $page) => $page
-        ->has(Parameters::PROP, fn (Assert $nav) => $nav
+        ->has(Constants::PROP, fn (Assert $nav) => $nav
             ->has('primary', fn (Assert $primary) => $primary
                 ->has(0, fn (Assert $item) => $item
                     ->where('label', 'Home')

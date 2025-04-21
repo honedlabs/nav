@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-use Honed\Nav\NavFactory;
-use Honed\Nav\NavItem;
+use Honed\Nav\NavManager;
+use Honed\Nav\NavLink;
 
 it('has helper', function () {
     expect(nav())
-        ->toBeInstanceOf(NavFactory::class);
+        ->toBeInstanceOf(NavManager::class);
 });
 
 it('has helper with group', function () {
-    expect(nav('primary', NavItem::make('Home', 'products.index')))
-        ->toBeInstanceOf(NavFactory::class);
+    expect(nav('primary', NavLink::make('Home', 'products.index')))
+        ->toBeInstanceOf(NavManager::class);
 
     expect(nav()->group('primary'))
         ->toBeArray()

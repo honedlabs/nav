@@ -4,20 +4,20 @@ declare(strict_types=1);
 
 use Honed\Nav\Facades\Nav;
 use Honed\Nav\NavGroup;
-use Honed\Nav\NavItem;
+use Honed\Nav\NavLink;
 
 Nav::for('primary', [
-    NavItem::make('Home', '/'),
-    NavItem::make('About', '/about'),
-    NavItem::make('Contact', '/contact'),
-    NavItem::make('Dashboard', '/dashboard')
+    NavLink::make('Home', '/'),
+    NavLink::make('About', '/about'),
+    NavLink::make('Contact', '/contact'),
+    NavLink::make('Dashboard', '/dashboard')
         ->allow(false),
 
 ]);
 
 Nav::for('products', [
     NavGroup::make('Products')->items([
-        NavItem::make('All Products', 'products.index')
+        NavLink::make('All Products', 'products.index')
             ->active('products.*'),
     ]),
 ]);

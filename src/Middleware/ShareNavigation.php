@@ -6,7 +6,7 @@ namespace Honed\Nav\Middleware;
 
 use Closure;
 use Honed\Nav\Facades\Nav;
-use Honed\Nav\Support\Parameters;
+use Honed\Nav\Support\Constants;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -20,11 +20,11 @@ class ShareNavigation
      */
     public function handle(Request $request, Closure $next, ...$groups)
     {
-        Nav::with(...$groups);
+        Nav::only(...$groups);
 
         Inertia::share(
-            Parameters::PROP,
-            static fn () => Nav::shared(),
+            Constants::PROP,
+            static fn () => Nav::data(),
         );
 
         return $next($request);

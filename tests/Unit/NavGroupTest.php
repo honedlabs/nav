@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use Honed\Nav\NavGroup;
-use Honed\Nav\NavItem;
+use Honed\Nav\NavLink;
 
 beforeEach(function () {
     $this->group = NavGroup::make('Dashboard');
@@ -21,7 +21,7 @@ it('has array representation', function () {
 it('has array representation with items', function () {
     expect($this->group)
         ->items([
-            NavItem::make('Home', 'products.index'),
+            NavLink::make('Home', 'products.index'),
         ])->toArray()->toEqual([
             'label' => 'Dashboard',
             'icon' => null,

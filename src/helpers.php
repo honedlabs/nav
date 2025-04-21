@@ -11,7 +11,7 @@ if (! \function_exists('nav')) {
      *
      * @param  string|null  $group
      * @param  \Honed\Nav\NavBase|iterable<int,\Honed\Nav\NavBase>  ...$items
-     * @return \Honed\Nav\NavFactory
+     * @return \Honed\Nav\NavManager
      */
     function nav($group = null, ...$items)
     {

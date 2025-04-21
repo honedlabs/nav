@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Honed\Nav\Concerns\HasItems;
 use Honed\Nav\NavGroup;
-use Honed\Nav\NavItem;
+use Honed\Nav\NavLink;
 
 beforeEach(function () {
     $this->test = new class {
@@ -15,8 +15,8 @@ beforeEach(function () {
 it('adds items', function () {
     expect($this->test)
         ->items([
-            NavItem::make('Home', 'products.index'),
-            NavItem::make('Products', 'products.index')->allow(false),
+            NavLink::make('Home', 'products.index'),
+            NavLink::make('Products', 'products.index')->allow(false),
         ])->toBe($this->test)
         ->getItems()->toHaveCount(1);
 });
@@ -24,8 +24,8 @@ it('adds items', function () {
 it('adds items variadically', function () {
     expect($this->test)
         ->items(
-            NavItem::make('Home', 'products.index'),
-            NavItem::make('Products', 'products.index')
+            NavLink::make('Home', 'products.index'),
+            NavLink::make('Products', 'products.index')
         )->toBe($this->test)
         ->getItems()->toHaveCount(2);
 });
@@ -33,8 +33,8 @@ it('adds items variadically', function () {
 it('adds items collection', function () {
     expect($this->test)
         ->items([
-            NavItem::make('Home', 'products.index'),
-            NavItem::make('Products', 'products.index'),
+            NavLink::make('Home', 'products.index'),
+            NavLink::make('Products', 'products.index'),
         ])->toBe($this->test)
         ->getItems()->toHaveCount(2);
 });
@@ -42,7 +42,7 @@ it('adds items collection', function () {
 it('has array representation', function () {
     expect($this->test)
         ->items([
-            NavItem::make('Home', 'products.index'),
+            NavLink::make('Home', 'products.index'),
         ])->toBe($this->test)
         ->itemsToArray()->toEqual([
             [

@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 
-final class NavServiceProvider extends ServiceProvider
+class NavServiceProvider extends ServiceProvider
 {
     /**
      * Register services.
@@ -30,7 +30,7 @@ final class NavServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->publishes([
                 __DIR__.'/../config/nav.php' => config_path('nav.php'),
-            ], 'config');
+            ], 'nav-config');
         }
 
         Event::listen(RouteMatched::class, function () {
@@ -51,9 +51,7 @@ final class NavServiceProvider extends ServiceProvider
      */
     protected function registerNavigation(): void
     {
-        /**
-         * @var string|array<int,string>
-         */
+        /** @var string|array<int,string> $files */
         $files = config('nav.files');
 
         if (! $files) {

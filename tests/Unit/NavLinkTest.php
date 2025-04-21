@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Honed\Nav\NavItem;
+use Honed\Nav\NavLink;
 use Honed\Nav\Tests\Stubs\Product;
 use Illuminate\Routing\Route;
 
@@ -14,8 +14,8 @@ beforeEach(function () {
 
 it('makes', function () {
     get(route('products.index'));
-    expect(NavItem::make($this->label, 'products.index'))
-        ->toBeInstanceOf(NavItem::class)
+    expect(NavLink::make($this->label, 'products.index'))
+        ->toBeInstanceOf(NavLink::class)
         ->getLabel()->toBe($this->label)
         ->getRoute()->toBe(route('products.index'))
         ->toArray()->toEqual([
@@ -31,10 +31,10 @@ it('sets active state', function (string|\Closure|null $condition, bool $expecte
 
     get(route('products.show', $product));
 
-    $item = NavItem::make($this->label, 'products.show', $product)
+    $item = NavLink::make($this->label, 'products.show', $product)
         ->active($condition);
 
-    expect($item)->toBeInstanceOf(NavItem::class)
+    expect($item)->toBeInstanceOf(NavLink::class)
         ->isActive()->toBe($expected)
         ->toArray()->toEqual([
             'label' => $this->label,
