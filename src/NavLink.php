@@ -4,8 +4,13 @@ declare(strict_types=1);
 
 namespace Honed\Nav;
 
+use Closure;
 use Honed\Core\Concerns\HasRoute;
 use Illuminate\Support\Str;
+
+use function array_merge;
+use function is_null;
+use function is_string;
 
 class NavLink extends NavBase
 {
@@ -14,7 +19,7 @@ class NavLink extends NavBase
     /**
      * Condition for this nav item to be considered active.
      *
-     * @var string|\Closure|null
+     * @var string|Closure|null
      */
     protected $active;
 
@@ -22,7 +27,7 @@ class NavLink extends NavBase
      * Create a new nav item instance.
      *
      * @param  string  $label
-     * @param  string|\Closure|null  $route
+     * @param  string|Closure|null  $route
      * @param  array<string,mixed>  $parameters
      * @return static
      */
@@ -37,11 +42,22 @@ class NavLink extends NavBase
     }
 
     /**
+     * Determine if the given route is a uri.
+     *
+     * @param  mixed  $route
+     * @return bool
+     */
+    public static function isUri($route)
+    {
+        return is_string($route) && Str::startsWith($route, '/');
+    }
+
+    /**
      * {@inheritDoc}
      */
-    public function toArray()
+    public function toArray($named = [], $typed = [])
     {
-        return \array_merge(parent::toArray(), [
+        return array_merge(parent::toArray(), [
             'url' => $this->getRoute(),
             'active' => $this->isActive(),
         ]);
@@ -50,12 +66,12 @@ class NavLink extends NavBase
     /**
      * Set the condition for this nav item to be considered active.
      *
-     * @param  string|\Closure|null  $condition
+     * @param  string|Closure|null  $condition
      * @return $this
      */
     public function active($condition)
     {
-        if (! \is_null($condition)) {
+        if (! is_null($condition)) {
             $this->active = $condition;
         }
 
@@ -72,20 +88,9 @@ class NavLink extends NavBase
         $request = $this->getRequest();
 
         return (bool) match (true) {
-            \is_string($this->active) => $request->route()?->named($this->active),
-            $this->active instanceof \Closure => $this->evaluate($this->active),
+            is_string($this->active) => $request->route()?->named($this->active),
+            $this->active instanceof Closure => $this->evaluate($this->active),
             default => $request->url() === $this->getRoute(),
         };
-    }
-
-    /**
-     * Determine if the given route is a uri.
-     *
-     * @param  mixed  $route
-     * @return bool
-     */
-    public static function isUri($route)
-    {
-        return \is_string($route) && Str::startsWith($route, '/');
     }
 }

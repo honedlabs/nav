@@ -9,12 +9,17 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 
+use function is_file;
+use function is_string;
+
 class NavServiceProvider extends ServiceProvider
 {
     /**
      * Register services.
+     *
+     * @return void
      */
-    public function register(): void
+    public function register()
     {
         $this->mergeConfigFrom(
             __DIR__.'/../config/nav.php', 'nav');
@@ -24,13 +29,13 @@ class NavServiceProvider extends ServiceProvider
 
     /**
      * Bootstrap services.
+     *
+     * @return void
      */
-    public function boot(): void
+    public function boot()
     {
         if ($this->app->runningInConsole()) {
-            $this->publishes([
-                __DIR__.'/../config/nav.php' => config_path('nav.php'),
-            ], 'nav-config');
+            $this->offerPublishing();
         }
 
         Event::listen(RouteMatched::class, function () {
@@ -40,16 +45,32 @@ class NavServiceProvider extends ServiceProvider
 
     /**
      * Register the middleware alias.
+     *
+     * @return void
      */
-    protected function registerMiddleware(): void
+    protected function registerMiddleware()
     {
         Route::aliasMiddleware('nav', Middleware\ShareNavigation::class);
     }
 
     /**
-     * Register the navs.
+     * Register the publishing for the package.
+     *
+     * @return void
      */
-    protected function registerNavigation(): void
+    protected function offerPublishing()
+    {
+        $this->publishes([
+            __DIR__.'/../config/nav.php' => config_path('nav.php'),
+        ], 'nav-config');
+    }
+
+    /**
+     * Register the navs.
+     *
+     * @return void
+     */
+    protected function registerNavigation()
     {
         /** @var string|array<int,string> $files */
         $files = config('nav.files');
@@ -58,7 +79,7 @@ class NavServiceProvider extends ServiceProvider
             return;
         }
 
-        if (\is_string($files) && ! \is_file($files)) {
+        if (is_string($files) && ! is_file($files)) {
             return;
         }
 

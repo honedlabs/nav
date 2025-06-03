@@ -23,14 +23,14 @@ use Illuminate\Support\Facades\Facade;
  * @method static array<int, array<string, mixed>> search(string $term, int $limit = 10, bool $caseSensitive = true, string $delimiter = '/') Search navigation items
  * @method static array<string, array<int, array<string, mixed>>> toArray(string|iterable<int, string> ...$groups) Convert groups to arrays
  *
- * @see \Honed\Nav\NavManager
+ * @see NavManager
  */
 class Nav extends Facade
 {
     /**
      * Get the root object behind the facade.
      *
-     * @return \Honed\Nav\NavManager
+     * @return NavManager
      */
     public static function getFacadeRoot()
     {

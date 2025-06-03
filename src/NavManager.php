@@ -4,15 +4,27 @@ declare(strict_types=1);
 
 namespace Honed\Nav;
 
-use Honed\Nav\Support\Constants;
+use Honed\Nav\Exceptions\DuplicateGroupException;
+use Honed\Nav\Exceptions\MissingGroupException;
 use Illuminate\Support\Arr;
+
+use function array_diff;
+use function array_filter;
+use function array_intersect;
+use function array_keys;
+use function array_map;
+use function array_merge;
+use function array_reduce;
+use function array_slice;
+use function array_values;
+use function count;
 
 class NavManager
 {
     /**
      * The navigation items.
      *
-     * @var array<string, array<int,\Honed\Nav\NavBase>>
+     * @var array<string, array<int,NavBase>>
      */
     protected $items = [];
 
@@ -41,18 +53,18 @@ class NavManager
      * Set a navigation group under a given name.
      *
      * @param  string  $name
-     * @param  array<int,\Honed\Nav\NavBase>  $items
+     * @param  array<int,NavBase>  $items
      * @return $this
      *
-     * @throws \InvalidArgumentException
+     * @throws DuplicateGroupException
      */
     public function for($name, $items)
     {
-        if ($this->has($name)) {
-            static::throwDuplicateGroupException($name);
+        if ($this->has($name) && $this->debugs()) {
+            DuplicateGroupException::throw($name);
         }
 
-        /** @var array<int,\Honed\Nav\NavBase> $items */
+        /** @var array<int,NavBase> $items */
         Arr::set($this->items, $name, $items);
 
         return $this;
@@ -62,19 +74,21 @@ class NavManager
      * Add navigation items to an existing group.
      *
      * @param  string  $name
-     * @param  array<int,\Honed\Nav\NavBase>  $items
+     * @param  array<int,NavBase>  $items
      * @return $this
+     *
+     * @throws MissingGroupException
      */
     public function add($name, $items)
     {
         if (! $this->has($name)) {
-            static::throwMissingGroupException($name);
+            MissingGroupException::throw($name);
         }
 
-        /** @var array<int,\Honed\Nav\NavBase> $current */
+        /** @var array<int,NavBase> $current */
         $current = Arr::get($this->items, $name);
 
-        Arr::set($this->items, $name, \array_merge($current, $items));
+        Arr::set($this->items, $name, array_merge($current, $items));
 
         return $this;
     }
@@ -94,7 +108,7 @@ class NavManager
             return filled($this->items);
         }
 
-        return empty(\array_diff($groups, \array_keys($this->items)));
+        return empty(array_diff($groups, array_keys($this->items)));
     }
 
     /**
@@ -122,7 +136,7 @@ class NavManager
     /**
      * Get all the navigation items.
      *
-     * @return array<string,array<int,\Honed\Nav\NavBase>>
+     * @return array<string,array<int,NavBase>>
      */
     public function all()
     {
@@ -133,20 +147,22 @@ class NavManager
      * Retrieve navigation groups and their allowed items.
      *
      * @param  string|iterable<int,string>  ...$groups
-     * @return array<string,array<int,\Honed\Nav\NavBase>>
+     * @return array<string,array<int,NavBase>>
+     *
+     * @throws MissingGroupException
      */
     public function get(...$groups)
     {
         /** @var array<int,string> $groups */
         $groups = Arr::flatten($groups);
 
-        if (! $this->has($groups)) {
-            static::throwMissingGroupException(\implode(', ', $groups));
+        if (! $this->has($groups) && $this->debugs()) {
+            MissingGroupException::throw($groups);
         }
 
-        $keys = empty($groups) ? \array_keys($this->items) : $groups;
+        $keys = empty($groups) ? array_keys($this->items) : $groups;
 
-        return \array_reduce(
+        return array_reduce(
             $keys,
             fn (array $acc, string $key) => $acc + [$key => $this->group($key)],
             []
@@ -157,15 +173,15 @@ class NavManager
      * Retrieve the navigation group for the given name.
      *
      * @param  string  $group
-     * @return array<int,\Honed\Nav\NavBase>
+     * @return array<int,NavBase>
      */
     public function group($group)
     {
-        /** @var array<int,\Honed\Nav\NavBase> */
+        /** @var array<int,NavBase> */
         $items = Arr::get($this->items, $group);
 
-        return \array_values(
-            \array_filter($items,
+        return array_values(
+            array_filter($items,
                 static fn (NavBase $item) => $item->isAllowed()
             )
         );
@@ -183,7 +199,7 @@ class NavManager
 
         $only = Arr::flatten($only);
 
-        $this->only = \array_merge($this->only, $only);
+        $this->only = array_merge($this->only, $only);
 
         return $this;
     }
@@ -200,7 +216,7 @@ class NavManager
 
         $except = Arr::flatten($except);
 
-        $this->except = \array_merge($this->except, $except);
+        $this->except = array_merge($this->except, $except);
 
         return $this;
     }
@@ -212,10 +228,10 @@ class NavManager
      */
     public function keys()
     {
-        return \array_values(
+        return array_values(
             $this->all
-                ? \array_diff(\array_keys($this->items), $this->except)
-                : \array_intersect(\array_keys($this->items), $this->only)
+                ? array_diff(array_keys($this->items), $this->except)
+                : array_intersect(array_keys($this->items), $this->only)
         );
     }
 
@@ -242,7 +258,7 @@ class NavManager
      */
     public function search($term, $limit = 10, $caseSensitive = true, $delimiter = '/')
     {
-        $groups = \array_keys($this->items);
+        $groups = array_keys($this->items);
 
         /** @var array<int,array<string,mixed>> $results */
         $results = [];
@@ -252,18 +268,37 @@ class NavManager
 
             $this->process($items, null, $term, $caseSensitive, $delimiter, $results, $limit);
 
-            if (\count($results) >= $limit) {
+            if (count($results) >= $limit) {
                 break;
             }
         }
 
-        return \array_slice($results, 0, $limit);
+        return array_slice($results, 0, $limit);
+    }
+
+    /**
+     * Get the navigation items as an array.
+     *
+     * @param  string|iterable<int,string>  ...$groups
+     * @return array<string,array<int,array<string,mixed>>>
+     */
+    public function toArray(...$groups)
+    {
+        $groups = $this->get(...$groups);
+
+        return array_map(
+            static fn ($group) => array_map(
+                static fn (NavBase $item) => $item->toArray(),
+                $group
+            ),
+            $groups
+        );
     }
 
     /**
      * Recursively process navigation items to search for matches.
      *
-     * @param  array<int, \Honed\Nav\NavBase>  $items
+     * @param  array<int, NavBase>  $items
      * @param  string|null  $currentPath
      * @param  string  $term
      * @param  bool  $caseSensitive
@@ -282,7 +317,7 @@ class NavManager
         $limit
     ) {
         foreach ($items as $item) {
-            if (\count($results) >= $limit) {
+            if (count($results) >= $limit) {
                 return;
             }
 
@@ -290,15 +325,14 @@ class NavManager
             $label = $item->getLabel();
 
             $isMatch = $caseSensitive
-                ? \strpos($label, $term) !== false
-                : \stripos($label, $term) !== false;
+                ? mb_strpos($label, $term) !== false
+                : mb_stripos($label, $term) !== false;
 
             $path = ! $currentPath ? $label : $currentPath.' '.$delimiter.' '.$label;
 
             if ($isMatch) {
-                // @phpstan-ignore-next-line
-                $results[] = \array_merge($item->toArray(), [
-                    Constants::PARENT => $path,
+                $results[] = array_merge($item->toArray(), [
+                    'path' => $path,
                 ]);
             }
 
@@ -317,57 +351,12 @@ class NavManager
     }
 
     /**
-     * Get the navigation items as an array.
+     * Determine if debug mode is enabled.
      *
-     * @param  string|iterable<int,string>  ...$groups
-     * @return array<string,array<int,array<string,mixed>>>
+     * @return bool
      */
-    public function toArray(...$groups)
+    protected function debugs()
     {
-        $groups = $this->get(...$groups);
-
-        return \array_map(
-            static fn ($group) => \array_map(
-                static fn (NavBase $item) => $item->toArray(),
-                $group
-            ),
-            $groups
-        );
-    }
-
-    /**
-     * Throw an exception for a duplicate group.
-     *
-     * @param  string  $group
-     * @return never
-     *
-     * @throws \InvalidArgumentException
-     */
-    public static function throwDuplicateGroupException($group)
-    {
-        throw new \InvalidArgumentException(
-            \sprintf(
-                'There already exists a group with the name [%s].',
-                $group
-            )
-        );
-    }
-
-    /**
-     * Throw an exception for a missing group.
-     *
-     * @param  string  $group
-     * @return never
-     *
-     * @throws \InvalidArgumentException
-     */
-    public static function throwMissingGroupException($group)
-    {
-        throw new \InvalidArgumentException(
-            \sprintf(
-                'There is no group with the name [%s].',
-                $group
-            )
-        );
+        return (bool) config('nav.debug', false);
     }
 }

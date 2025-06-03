@@ -2,8 +2,6 @@
 
 declare(strict_types=1);
 
-use Illuminate\Console\Command;
-
 arch()->preset()->php();
 
 arch()->preset()->security();
@@ -16,6 +14,10 @@ arch('strict types')
     ->expect('Honed\Nav')
     ->toUseStrictTypes();
 
+arch('attributes')
+    ->expect('Honed\Nav\Attributes')
+    ->toBeClasses();
+
 arch('concerns')
     ->expect('Honed\Nav\Concerns')
     ->toBeTraits();
@@ -23,8 +25,3 @@ arch('concerns')
 arch('contracts')
     ->expect('Honed\Nav\Contracts')
     ->toBeInterfaces();
-
-arch('commands')
-    ->expect('Honed\Nav\Console\Commands')
-    ->toBeClasses()
-    ->toExtend(Command::class);

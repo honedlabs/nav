@@ -6,6 +6,8 @@ namespace Honed\Nav;
 
 use Honed\Nav\Concerns\HasDescription;
 
+use function array_merge;
+
 class NavItem extends NavLink
 {
     use HasDescription;
@@ -13,9 +15,9 @@ class NavItem extends NavLink
     /**
      * {@inheritDoc}
      */
-    public function toArray()
+    public function toArray($named = [], $typed = [])
     {
-        return \array_merge(parent::toArray(), [
+        return array_merge(parent::toArray(), [
             'description' => $this->getDescription(),
         ]);
     }
