@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Honed\Nav;
 
+use Honed\Nav\Contracts\ManagesNavigation;
 use Illuminate\Routing\Events\RouteMatched;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Route;
@@ -22,7 +23,13 @@ class NavServiceProvider extends ServiceProvider
     public function register()
     {
         $this->mergeConfigFrom(
-            __DIR__.'/../config/nav.php', 'nav');
+            __DIR__.'/../config/nav.php', 'nav'
+        );
+
+        /** @var class-string<ManagesNavigation> $implementation */
+        $implementation = config('nav.implementation', NavManager::class);
+
+        $this->app->singleton(ManagesNavigation::class, $implementation);
 
         $this->registerMiddleware();
     }

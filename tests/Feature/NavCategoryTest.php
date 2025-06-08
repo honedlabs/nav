@@ -2,28 +2,31 @@
 
 declare(strict_types=1);
 
+use Honed\Nav\Facades\Nav;
 use Honed\Nav\NavCategory;
 
 beforeEach(function () {
-    $this->category = NavCategory::make('Dashboard', []);
+    $this->category = NavCategory::make('Dashboard', [])
+        ->description('This is a description')
+        ->icon('Dashboard');
+});
+
+afterEach(function () {
+    Nav::enableDescriptions();
 });
 
 it('has description', function () {
     expect($this->category)
-        ->getDescription()->toBeNull()
-        ->description('This is a description')->toBe($this->category)
-        ->getDescription()->toBe('This is a description');
+        ->jsonSerialize()->toEqual($this->category->toArray());
 });
 
-it('has array representation', function () {
+it('disables description', function () {
+    Nav::disableDescriptions();
+
     expect($this->category)
-        ->description('This is a description')
-        ->toArray()
-        ->toBeArray()
-        ->toEqual([
+        ->jsonSerialize()->toEqual([
             'label' => 'Dashboard',
-            'description' => 'This is a description',
             'items' => [],
-            'icon' => null,
+            'icon' => 'Dashboard',
         ]);
 });

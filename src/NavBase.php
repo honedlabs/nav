@@ -7,6 +7,7 @@ namespace Honed\Nav;
 use Honed\Core\Concerns\Allowable;
 use Honed\Core\Concerns\HasIcon;
 use Honed\Core\Concerns\HasLabel;
+use Honed\Core\Contracts\WithoutNullValues;
 use Honed\Core\Primitive;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Route;
@@ -16,11 +17,18 @@ use Illuminate\Support\Facades\App;
 use function get_class;
 use function is_object;
 
-abstract class NavBase extends Primitive
+abstract class NavBase extends Primitive implements WithoutNullValues
 {
     use Allowable;
     use HasIcon;
     use HasLabel;
+
+    /**
+     * Whether this navigation item should be shown when searched.
+     *
+     * @var bool
+     */
+    protected $search = true;
 
     /**
      * The application request.
@@ -29,6 +37,9 @@ abstract class NavBase extends Primitive
      */
     protected $request;
 
+    /**
+     * Create a new navigation item.
+     */
     public function __construct(Request $request)
     {
         $this->request = $request;
@@ -57,6 +68,29 @@ abstract class NavBase extends Primitive
     public function getRequest()
     {
         return $this->request;
+    }
+
+    /**
+     * Set whether this navigation item should be shown when searched.
+     *
+     * @param  bool  $search
+     * @return $this
+     */
+    public function search($search = true)
+    {
+        $this->search = $search;
+
+        return $this;
+    }
+
+    /**
+     * Determine if this navigation item should be searchable.
+     *
+     * @return bool
+     */
+    public function searches()
+    {
+        return $this->search;
     }
 
     /**
@@ -110,6 +144,7 @@ abstract class NavBase extends Primitive
 
         /** @var array<int,mixed> */
         return match ($parameterType) {
+            static::class => [$this],
             Request::class => [$request],
             Route::class => [$request->route()],
             default => Arr::get(

@@ -14,7 +14,7 @@ return [
     | group namespace.
     */
 
-    'debug' => env('APP_DEBUG', false),
+    'debug' => config('app.debug', false),
 
     /*
     |--------------------------------------------------------------------------
@@ -27,4 +27,17 @@ return [
     */
 
     'files' => base_path('routes/nav.php'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Implementation
+    |--------------------------------------------------------------------------
+    |
+    | Configure the concrete implementation of the navigation manager. By
+    | default, the implementation is the `NavManager` class provided by the
+    | package - but you can customise these by implementing the
+    | `Honed\Nav\Contracts\ManagesNavigation` contract.
+    */
+
+    'implementation' => Honed\Nav\NavManager::class,
 ];

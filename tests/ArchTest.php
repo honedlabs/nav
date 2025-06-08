@@ -25,3 +25,7 @@ arch('concerns')
 arch('contracts')
     ->expect('Honed\Nav\Contracts')
     ->toBeInterfaces();
+
+arch('facades')
+    ->expect('Honed\Nav\Facades')
+    ->toExtend('Illuminate\Support\Facades\Facade');

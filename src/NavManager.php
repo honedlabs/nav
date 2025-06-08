@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Honed\Nav;
 
+use Honed\Nav\Contracts\ManagesNavigation;
 use Honed\Nav\Exceptions\DuplicateGroupException;
 use Honed\Nav\Exceptions\MissingGroupException;
 use Illuminate\Support\Arr;
@@ -19,7 +20,7 @@ use function array_slice;
 use function array_values;
 use function count;
 
-class NavManager
+class NavManager implements ManagesNavigation
 {
     /**
      * The navigation items.
@@ -27,6 +28,13 @@ class NavManager
      * @var array<string, array<int,NavBase>>
      */
     protected $items = [];
+
+    /**
+     * Whether to serialize with descriptions.
+     *
+     * @var bool
+     */
+    protected $descriptions = true;
 
     /**
      * Whether to share all navigation items.
@@ -277,6 +285,50 @@ class NavManager
     }
 
     /**
+     * Set the descriptions to not be serialized.
+     *
+     * @return $this
+     */
+    public function disableDescriptions()
+    {
+        $this->descriptions = false;
+
+        return $this;
+    }
+
+    /**
+     * Set the descriptions to be serialized.
+     *
+     * @return $this
+     */
+    public function enableDescriptions()
+    {
+        $this->descriptions = true;
+
+        return $this;
+    }
+
+    /**
+     * Determine if the descriptions should be serialized.
+     *
+     * @return bool
+     */
+    public function descriptionsEnabled()
+    {
+        return $this->descriptions;
+    }
+
+    /**
+     * Determine if the descriptions should not be serialized.
+     *
+     * @return bool
+     */
+    public function descriptionsDisabled()
+    {
+        return ! $this->descriptionsEnabled();
+    }
+
+    /**
      * Get the navigation items as an array.
      *
      * @param  string|iterable<int,string>  ...$groups
@@ -330,7 +382,7 @@ class NavManager
 
             $path = ! $currentPath ? $label : $currentPath.' '.$delimiter.' '.$label;
 
-            if ($isMatch) {
+            if ($isMatch && $item->searches()) {
                 $results[] = array_merge($item->toArray(), [
                     'path' => $path,
                 ]);

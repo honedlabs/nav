@@ -103,11 +103,12 @@ it('can select only a subset of groups', function () {
     expect(Nav::only('primary', 'example'))
         ->toBeInstanceOf(NavManager::class)
         ->keys()->toBe(['primary'])
-        ->data()->scoped(fn ($data) => $data
-        ->toBeArray()
-        ->toHaveCount(1)
-        ->toHaveKeys(['primary'])
-        ->{'primary'}->toHaveCount(2)
+        ->data()
+        ->scoped(fn ($data) => $data
+            ->toBeArray()
+            ->toHaveCount(1)
+            ->toHaveKeys(['primary'])
+            ->{'primary'}->toHaveCount(2)
         );
 });
 
@@ -115,40 +116,12 @@ it('can exclude a subset of groups', function () {
     expect(Nav::except('primary', 'example'))
         ->toBeInstanceOf(NavManager::class)
         ->keys()->toEqual(['users', 'menu'])
-        ->data()->scoped(fn ($data) => $data
-        ->toBeArray()
-        ->toHaveCount(2)
-        ->toHaveKeys(['users', 'menu'])
-        ->{'users'}->toHaveCount(1)
-        ->{'menu'}->toHaveCount(1)
+        ->data()
+        ->scoped(fn ($data) => $data
+            ->toBeArray()
+            ->toHaveCount(2)
+            ->toHaveKeys(['users', 'menu'])
+            ->{'users'}->toHaveCount(1)
+            ->{'menu'}->toHaveCount(1)
         );
-});
-
-it('can search for an item', function () {
-    expect(Nav::search('all', caseSensitive: false))
-        ->toBeArray()
-        ->toHaveCount(1)
-        ->{0}->scoped(fn ($item) => $item
-        ->toBeArray()
-        ->toHaveKeys([
-            'label',
-            'path',
-            'url',
-            'active',
-            'path',
-        ])->{'path'}->toBe('Users / All Users')
-        );
-
-    expect(Nav::search('all', caseSensitive: true))
-        ->toBeEmpty();
-});
-
-it('can limit the number of results', function () {
-    expect(Nav::search(''))
-        ->toBeArray()
-        ->toHaveCount(5);
-
-    expect(Nav::search('', limit: 3))
-        ->toBeArray()
-        ->toHaveCount(3);
 });

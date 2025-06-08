@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Honed\Nav\Concerns;
 
+use Honed\Nav\Facades\Nav;
+
 trait HasDescription
 {
     /**
@@ -33,16 +35,10 @@ trait HasDescription
      */
     public function getDescription()
     {
-        return $this->description;
-    }
+        if (Nav::descriptionsDisabled()) {
+            return null;
+        }
 
-    /**
-     * Determine if the description is set.
-     *
-     * @return bool
-     */
-    public function hasDescription()
-    {
-        return isset($this->description);
+        return $this->description;
     }
 }
