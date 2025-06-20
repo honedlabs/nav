@@ -27,9 +27,11 @@ class NavGroup extends NavBase
     }
 
     /**
-     * {@inheritDoc}
+     * Get the instance as an array.
+     *
+     * @return array<string,mixed>
      */
-    public function toArray($named = [], $typed = [])
+    public function toArray()
     {
         return array_merge(parent::toArray(), [
             'items' => $this->itemsToArray(),

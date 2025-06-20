@@ -7,21 +7,25 @@ namespace Honed\Nav;
 use Honed\Core\Concerns\Allowable;
 use Honed\Core\Concerns\HasIcon;
 use Honed\Core\Concerns\HasLabel;
-use Honed\Core\Contracts\WithoutNullValues;
+use Honed\Core\Concerns\HasRequest;
+use Honed\Core\Contracts\NullsAsUndefined;
 use Honed\Core\Primitive;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Route;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\App;
 
 use function get_class;
 use function is_object;
 
-abstract class NavBase extends Primitive implements WithoutNullValues
+/**
+ * @extends Primitive<string, mixed>
+ */
+abstract class NavBase extends Primitive implements NullsAsUndefined
 {
     use Allowable;
     use HasIcon;
     use HasLabel;
+    use HasRequest;
 
     /**
      * Whether this navigation item should be shown when searched.
@@ -31,43 +35,13 @@ abstract class NavBase extends Primitive implements WithoutNullValues
     protected $search = true;
 
     /**
-     * The application request.
-     *
-     * @var Request
-     */
-    protected $request;
-
-    /**
      * Create a new navigation item.
      */
     public function __construct(Request $request)
     {
-        $this->request = $request;
-
         parent::__construct();
-    }
 
-    /**
-     * Set the application request.
-     *
-     * @param  Request  $request
-     * @return $this
-     */
-    public function request($request)
-    {
-        $this->request = $request;
-
-        return $this;
-    }
-
-    /**
-     * Get the application request.
-     *
-     * @return Request
-     */
-    public function getRequest()
-    {
-        return $this->request;
+        $this->request($request);
     }
 
     /**
@@ -94,9 +68,11 @@ abstract class NavBase extends Primitive implements WithoutNullValues
     }
 
     /**
-     * {@inheritDoc}
+     * Get the instance as an array.
+     *
+     * @return array<string,mixed>
      */
-    public function toArray($named = [], $typed = [])
+    public function toArray()
     {
         return [
             'label' => $this->getLabel(),
@@ -150,7 +126,7 @@ abstract class NavBase extends Primitive implements WithoutNullValues
             default => Arr::get(
                 $parameters,
                 $parameterType,
-                App::make($parameterType),
+                parent::resolveDefaultClosureDependencyForEvaluationByType($parameterType),
             ),
         };
     }

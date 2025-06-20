@@ -13,9 +13,11 @@ class NavItem extends NavLink
     use HasDescription;
 
     /**
-     * {@inheritDoc}
+     * Get the instance as an array.
+     *
+     * @return array<string,mixed>
      */
-    public function toArray($named = [], $typed = [])
+    public function toArray()
     {
         return array_merge(parent::toArray(), [
             'description' => $this->getDescription(),
