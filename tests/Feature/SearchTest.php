@@ -13,7 +13,7 @@ beforeEach(function () {
     Nav::for('menu', [
         NavLink::make('Users', 'users.index'),
         NavLink::make('Hidden Users', 'users.index')
-            ->search(false),
+            ->searchable(false),
         NavLink::make('About', '/about')->allow(false),
     ]);
 });

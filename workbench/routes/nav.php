@@ -7,7 +7,8 @@ use Honed\Nav\NavGroup;
 use Honed\Nav\NavLink;
 
 Nav::for('primary', [
-    NavLink::make('Home', '/'),
+    NavLink::make('Home', '/')
+        ->icon('Home'),
     NavLink::make('About', '/about'),
     NavLink::make('Contact', '/contact')
         ->allow(false),

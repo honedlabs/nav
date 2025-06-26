@@ -22,9 +22,9 @@ it('has request', function () {
 
 it('can be searchable', function () {
     expect($this->link)
-        ->searches()->toBeTrue()
-        ->search(false)->toBe($this->link)
-        ->searches()->toBeFalse();
+        ->isSearchable()->toBeTrue()
+        ->notSearchable()->toBe($this->link)
+        ->isNotSearchable()->toBeTrue();
 });
 
 it('sets active state', function (string|Closure|null $condition, bool $expected) {
@@ -42,7 +42,6 @@ it('sets active state', function (string|Closure|null $condition, bool $expected
             'label' => 'Home',
             'url' => route('users.show', $user),
             'active' => $expected,
-            'icon' => null,
         ]);
 })->with([
     'other route' => ['status.*', false],

@@ -53,19 +53,6 @@ class NavLink extends NavBase
     }
 
     /**
-     * Get the instance as an array.
-     *
-     * @return array<string,mixed>
-     */
-    public function toArray()
-    {
-        return array_merge(parent::toArray(), [
-            'url' => $this->getRoute(),
-            'active' => $this->isActive(),
-        ]);
-    }
-
-    /**
      * Set the condition for this nav item to be considered active.
      *
      * @param  string|Closure|null  $condition
@@ -94,5 +81,18 @@ class NavLink extends NavBase
             $this->active instanceof Closure => $this->evaluate($this->active),
             default => $request->url() === $this->getRoute(),
         };
+    }
+
+    /**
+     * Get the representation of the instance.
+     *
+     * @return array<string, mixed>
+     */
+    protected function representation(): array
+    {
+        return array_merge(parent::representation(), [
+            'url' => $this->getRoute(),
+            'active' => $this->isActive(),
+        ]);
     }
 }

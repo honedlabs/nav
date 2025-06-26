@@ -16,6 +16,5 @@ it('makes', function () {
             'label' => 'Home',
             'url' => route('users.index'),
             'active' => true,
-            'icon' => null,
         ]);
 });

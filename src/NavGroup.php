@@ -27,13 +27,13 @@ class NavGroup extends NavBase
     }
 
     /**
-     * Get the instance as an array.
+     * Get the representation of the instance.
      *
-     * @return array<string,mixed>
+     * @return array<string, mixed>
      */
-    public function toArray()
+    protected function representation(): array
     {
-        return array_merge(parent::toArray(), [
+        return array_merge(parent::representation(), [
             'items' => $this->itemsToArray(),
         ]);
     }

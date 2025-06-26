@@ -32,7 +32,7 @@ abstract class NavBase extends Primitive implements NullsAsUndefined
      *
      * @var bool
      */
-    protected $search = true;
+    protected $searchable = true;
 
     /**
      * Create a new navigation item.
@@ -47,14 +47,25 @@ abstract class NavBase extends Primitive implements NullsAsUndefined
     /**
      * Set whether this navigation item should be shown when searched.
      *
-     * @param  bool  $search
+     * @param  bool  $value
      * @return $this
      */
-    public function search($search = true)
+    public function searchable($value = true)
     {
-        $this->search = $search;
+        $this->searchable = $value;
 
         return $this;
+    }
+
+    /**
+     * Set whether this navigation item should not be shown when searched.
+     *
+     * @param  bool  $value
+     * @return $this
+     */
+    public function notSearchable($value = true)
+    {
+        return $this->searchable(! $value);
     }
 
     /**
@@ -62,26 +73,26 @@ abstract class NavBase extends Primitive implements NullsAsUndefined
      *
      * @return bool
      */
-    public function searches()
+    public function isSearchable()
     {
-        return $this->search;
+        return $this->searchable;
     }
 
     /**
-     * Get the instance as an array.
+     * Determine if this navigation item should not be shown when searched.
      *
-     * @return array<string,mixed>
+     * @return bool
      */
-    public function toArray()
+    public function isNotSearchable()
     {
-        return [
-            'label' => $this->getLabel(),
-            'icon' => $this->getIcon(),
-        ];
+        return ! $this->isSearchable();
     }
 
     /**
-     * {@inheritDoc}
+     * Provide a selection of default dependencies for evaluation by name.
+     *
+     * @param  string  $parameterName
+     * @return array<int, mixed>
      */
     public function resolveDefaultClosureDependencyForEvaluationByName($parameterName)
     {
@@ -105,7 +116,10 @@ abstract class NavBase extends Primitive implements NullsAsUndefined
     }
 
     /**
-     * {@inheritDoc}
+     * Provide a selection of default dependencies for evaluation by type.
+     *
+     * @param  class-string  $parameterType
+     * @return array<int, mixed>
      */
     public function resolveDefaultClosureDependencyForEvaluationByType($parameterType)
     {
@@ -129,5 +143,18 @@ abstract class NavBase extends Primitive implements NullsAsUndefined
                 parent::resolveDefaultClosureDependencyForEvaluationByType($parameterType),
             ),
         };
+    }
+
+    /**
+     * Get the representation of the instance.
+     *
+     * @return array<string, mixed>
+     */
+    protected function representation(): array
+    {
+        return [
+            'label' => $this->getLabel(),
+            'icon' => $this->getIcon(),
+        ];
     }
 }

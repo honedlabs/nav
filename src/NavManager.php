@@ -382,7 +382,7 @@ class NavManager implements ManagesNavigation
 
             $path = ! $currentPath ? $label : $currentPath.' '.$delimiter.' '.$label;
 
-            if ($isMatch && $item->searches()) {
+            if ($isMatch && $item->isSearchable()) {
                 $results[] = array_merge($item->toArray(), [
                     'path' => $path,
                 ]);

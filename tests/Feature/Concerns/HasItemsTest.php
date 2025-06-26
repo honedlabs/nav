@@ -47,7 +47,6 @@ it('has array representation', function () {
         ->itemsToArray()->toEqual([
             [
                 'label' => 'Home',
-                'icon' => null,
                 'url' => route('users.index'),
                 'active' => false,
             ],
