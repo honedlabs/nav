@@ -5,8 +5,7 @@ declare(strict_types=1);
 namespace Honed\Nav;
 
 use Closure;
-use Honed\Core\Concerns\HasRoute;
-use Illuminate\Support\Str;
+use Honed\Core\Concerns\CanHaveUrl;
 
 use function array_merge;
 use function is_null;
@@ -14,7 +13,7 @@ use function is_string;
 
 class NavLink extends NavBase
 {
-    use HasRoute;
+    use CanHaveUrl;
 
     /**
      * Condition for this nav item to be considered active.
@@ -35,21 +34,7 @@ class NavLink extends NavBase
     {
         return resolve(static::class)
             ->label($label)
-            ->when(static::isUri($route),
-                fn ($item) => $item->url($route),
-                fn ($item) => $item->route($route, $parameters),
-            );
-    }
-
-    /**
-     * Determine if the given route is a uri.
-     *
-     * @param  mixed  $route
-     * @return bool
-     */
-    public static function isUri($route)
-    {
-        return is_string($route) && Str::startsWith($route, '/');
+            ->url($route, $parameters);
     }
 
     /**
@@ -79,7 +64,7 @@ class NavLink extends NavBase
         return (bool) match (true) {
             is_string($this->active) => $request->route()?->named($this->active),
             $this->active instanceof Closure => $this->evaluate($this->active),
-            default => $request->url() === $this->getRoute(),
+            default => $request->url() === $this->getUrl(),
         };
     }
 
@@ -91,7 +76,7 @@ class NavLink extends NavBase
     protected function representation(): array
     {
         return array_merge(parent::representation(), [
-            'url' => $this->getRoute(),
+            'url' => $this->getUrl(),
             'active' => $this->isActive(),
         ]);
     }

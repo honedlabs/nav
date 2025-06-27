@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Honed\Nav;
 
 use Honed\Core\Concerns\Allowable;
-use Honed\Core\Concerns\HasIcon;
+use Honed\Core\Concerns\CanHaveIcon;
 use Honed\Core\Concerns\HasLabel;
 use Honed\Core\Concerns\HasRequest;
 use Honed\Core\Contracts\NullsAsUndefined;
@@ -23,7 +23,7 @@ use function is_object;
 abstract class NavBase extends Primitive implements NullsAsUndefined
 {
     use Allowable;
-    use HasIcon;
+    use CanHaveIcon;
     use HasLabel;
     use HasRequest;
 

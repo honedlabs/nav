@@ -11,7 +11,7 @@ it('makes', function () {
     expect(NavLink::make('Home', 'users.index'))
         ->toBeInstanceOf(NavLink::class)
         ->getLabel()->toBe('Home')
-        ->getRoute()->toBe(route('users.index'))
+        ->getUrl()->toBe(route('users.index'))
         ->toArray()->toEqual([
             'label' => 'Home',
             'url' => route('users.index'),
