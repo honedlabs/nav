@@ -17,10 +17,8 @@ class NavServiceProvider extends ServiceProvider
 {
     /**
      * Register services.
-     *
-     * @return void
      */
-    public function register()
+    public function register(): void
     {
         $this->mergeConfigFrom(
             __DIR__.'/../config/nav.php', 'nav'
@@ -36,10 +34,8 @@ class NavServiceProvider extends ServiceProvider
 
     /**
      * Bootstrap services.
-     *
-     * @return void
      */
-    public function boot()
+    public function boot(): void
     {
         if ($this->app->runningInConsole()) {
             $this->offerPublishing();
@@ -52,20 +48,16 @@ class NavServiceProvider extends ServiceProvider
 
     /**
      * Register the middleware alias.
-     *
-     * @return void
      */
-    protected function registerMiddleware()
+    protected function registerMiddleware(): void
     {
         Route::aliasMiddleware('nav', Middleware\ShareNavigation::class);
     }
 
     /**
      * Register the publishing for the package.
-     *
-     * @return void
      */
-    protected function offerPublishing()
+    protected function offerPublishing(): void
     {
         $this->publishes([
             __DIR__.'/../config/nav.php' => config_path('nav.php'),
@@ -74,10 +66,8 @@ class NavServiceProvider extends ServiceProvider
 
     /**
      * Register the navs.
-     *
-     * @return void
      */
-    protected function registerNavigation()
+    protected function registerNavigation(): void
     {
         /** @var string|array<int,string> $files */
         $files = config('nav.files');

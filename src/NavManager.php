@@ -27,35 +27,31 @@ class NavManager implements ManagesNavigation
      *
      * @var array<string, array<int,NavBase>>
      */
-    protected $items = [];
+    protected array $items = [];
 
     /**
      * Whether to serialize with descriptions.
-     *
-     * @var bool
      */
-    protected $descriptions = true;
+    protected bool $descriptions = true;
 
     /**
      * Whether to share all navigation items.
-     *
-     * @var bool
      */
-    protected $all = true;
+    protected bool $all = true;
 
     /**
      * The only keys to include for sharing.
      *
      * @var array<int,string>
      */
-    protected $only = [];
+    protected array $only = [];
 
     /**
      * The keys to exclude for sharing.
      *
      * @var array<int,string>
      */
-    protected $except = [];
+    protected array $except = [];
 
     /**
      * Set a navigation group under a given name.

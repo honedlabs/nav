@@ -29,10 +29,8 @@ abstract class NavBase extends Primitive implements NullsAsUndefined
 
     /**
      * Whether this navigation item should be shown when searched.
-     *
-     * @var bool
      */
-    protected $searchable = true;
+    protected bool $searchable = true;
 
     /**
      * Create a new navigation item.
@@ -47,10 +45,9 @@ abstract class NavBase extends Primitive implements NullsAsUndefined
     /**
      * Set whether this navigation item should be shown when searched.
      *
-     * @param  bool  $value
      * @return $this
      */
-    public function searchable($value = true)
+    public function searchable(bool $value = true): static
     {
         $this->searchable = $value;
 
@@ -60,30 +57,25 @@ abstract class NavBase extends Primitive implements NullsAsUndefined
     /**
      * Set whether this navigation item should not be shown when searched.
      *
-     * @param  bool  $value
      * @return $this
      */
-    public function notSearchable($value = true)
+    public function notSearchable(bool $value = true): static
     {
         return $this->searchable(! $value);
     }
 
     /**
      * Determine if this navigation item should be searchable.
-     *
-     * @return bool
      */
-    public function isSearchable()
+    public function isSearchable(): bool
     {
         return $this->searchable;
     }
 
     /**
      * Determine if this navigation item should not be shown when searched.
-     *
-     * @return bool
      */
-    public function isNotSearchable()
+    public function isNotSearchable(): bool
     {
         return ! $this->isSearchable();
     }
@@ -91,10 +83,9 @@ abstract class NavBase extends Primitive implements NullsAsUndefined
     /**
      * Provide a selection of default dependencies for evaluation by name.
      *
-     * @param  string  $parameterName
      * @return array<int, mixed>
      */
-    public function resolveDefaultClosureDependencyForEvaluationByName($parameterName)
+    public function resolveDefaultClosureDependencyForEvaluationByName(string $parameterName): array
     {
         $request = $this->getRequest();
 
@@ -121,7 +112,7 @@ abstract class NavBase extends Primitive implements NullsAsUndefined
      * @param  class-string  $parameterType
      * @return array<int, mixed>
      */
-    public function resolveDefaultClosureDependencyForEvaluationByType($parameterType)
+    public function resolveDefaultClosureDependencyForEvaluationByType(string $parameterType): array
     {
         $request = $this->getRequest();
 

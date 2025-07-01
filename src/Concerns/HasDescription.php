@@ -10,18 +10,15 @@ trait HasDescription
 {
     /**
      * The description to display.
-     *
-     * @var string|null
      */
-    protected $description;
+    protected ?string $description = null;
 
     /**
      * Set the description to display.
      *
-     * @param  string  $description
      * @return $this
      */
-    public function description($description)
+    public function description(string $description): static
     {
         $this->description = $description;
 
@@ -30,10 +27,8 @@ trait HasDescription
 
     /**
      * Get the description to display.
-     *
-     * @return string|null
      */
-    public function getDescription()
+    public function getDescription(): ?string
     {
         if (Nav::descriptionsDisabled()) {
             return null;

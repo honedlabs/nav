@@ -18,7 +18,7 @@ trait HasItems
      *
      * @var array<int,NavBase>
      */
-    protected $items = [];
+    protected array $items = [];
 
     /**
      * Set the navigation items.
@@ -26,7 +26,7 @@ trait HasItems
      * @param  NavBase  ...$items
      * @return $this
      */
-    public function items(...$items)
+    public function items(...$items): static
     {
         /** @var array<int,NavBase> $items */
         $items = Arr::flatten($items);
@@ -41,7 +41,7 @@ trait HasItems
      *
      * @return array<int,NavBase>
      */
-    public function getItems()
+    public function getItems(): array
     {
         return array_values(
             array_filter(
@@ -56,7 +56,7 @@ trait HasItems
      *
      * @return array<int,mixed>
      */
-    public function itemsToArray()
+    public function itemsToArray(): array
     {
         return array_map(
             static fn (NavBase $item) => $item->toArray(),
