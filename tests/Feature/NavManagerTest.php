@@ -7,7 +7,6 @@ use Honed\Nav\Exceptions\MissingGroupException;
 use Honed\Nav\Facades\Nav;
 use Honed\Nav\NavLink;
 use Honed\Nav\NavManager;
-use Illuminate\Routing\Events\PreparingResponse;
 
 use function Pest\Laravel\get;
 
