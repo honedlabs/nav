@@ -7,17 +7,18 @@ use Honed\Nav\Exceptions\MissingGroupException;
 use Honed\Nav\Facades\Nav;
 use Honed\Nav\NavLink;
 use Honed\Nav\NavManager;
+use Illuminate\Routing\Events\PreparingResponse;
 
 use function Pest\Laravel\get;
 
 beforeEach(function () {
-    get('/'); // Must always have a request to test navs
+    get('/');
 
     Nav::for('menu', [
         NavLink::make('Users', 'users.index'),
         NavLink::make('About', '/about')->allow(false),
     ]);
-});
+})->only();
 
 it('defines a new group', function () {
     expect(Nav::for('example', [

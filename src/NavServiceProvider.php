@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Honed\Nav;
 
 use Honed\Nav\Contracts\ManagesNavigation;
+use Illuminate\Foundation\Http\Events\RequestHandled;
+use Illuminate\Foundation\Http\Kernel;
+use Illuminate\Routing\Events\PreparingResponse;
 use Illuminate\Routing\Events\RouteMatched;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Route;
@@ -41,7 +44,7 @@ class NavServiceProvider extends ServiceProvider
             $this->offerPublishing();
         }
 
-        Event::listen(RouteMatched::class, function () {
+        Event::listen(PreparingResponse::class, function () {
             $this->registerNavigation();
         });
     }
@@ -81,7 +84,7 @@ class NavServiceProvider extends ServiceProvider
         }
 
         foreach ((array) $files as $file) {
-            require $file;
+            require_once $file;
         }
     }
 }
