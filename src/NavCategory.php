@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Honed\Nav;
 
-use Honed\Nav\Concerns\HasDescription;
+use Honed\Core\Concerns\HasDescription;
 
 use function array_merge;
 

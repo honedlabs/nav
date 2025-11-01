@@ -5,15 +5,11 @@ declare(strict_types=1);
 namespace Honed\Nav;
 
 use Closure;
-use Honed\Core\Concerns\CanHaveUrl;
-
-use function array_merge;
-use function is_null;
-use function is_string;
+use Honed\Core\Concerns\HasUrl;
 
 class NavLink extends NavBase
 {
-    use CanHaveUrl;
+    use HasUrl;
 
     /**
      * Condition for this nav item to be considered active.

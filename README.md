@@ -11,6 +11,7 @@
 
 <p>
     <a href="https://github.com/honedlabs/nav/actions"><img src="https://github.com/honedlabs/nav/actions/workflows/tests.yml/badge.svg" alt="Build Status"></a>
+    <a href="https://github.com/honedlabs/nav"><img src="https://raw.githubusercontent.com/honedlabs/nav/main/badge-coverage.svg" alt="Code Coverage"></a>
     <a href="https://packagist.org/packages/honed/nav"><img src="https://img.shields.io/packagist/dt/honed/nav" alt="Total Downloads"></a>
     <a href="https://packagist.org/packages/honed/nav"><img src="https://img.shields.io/packagist/v/honed/nav" alt="Latest Stable Version"></a>
 </p>
