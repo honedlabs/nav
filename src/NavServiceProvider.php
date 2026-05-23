@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace Honed\Nav;
 
 use Honed\Nav\Contracts\ManagesNavigation;
+use Illuminate\Foundation\Http\Events\RequestHandled;
+use Illuminate\Foundation\Http\Kernel;
 use Illuminate\Routing\Events\PreparingResponse;
+use Illuminate\Routing\Events\RouteMatched;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
